@@ -1,9 +1,9 @@
+configs/*
+scripts/*
+meshes/*
+partitions/*
+solns/*
+
 *.txt
-*.msh
-*.pyfrm
-*.csv
 *.pyc
-*.out
-*.sh
-*.ini
 *.code-workspace
