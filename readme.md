@@ -3,7 +3,9 @@ This repository contains Python scripts that automate the setup, execution, and 
 
 The `benchmark` branch in `https://github.com/sambitmishra98/PyFR.git` is used to run the experiments
 
-Towards ease of execution of the cases, the aim of the workflow is to run three codes in sequence:
+# Workflow
+
+The workflow consists of three steps, each corresponding to a Python script:
 1. preprocess.py
 2. run.py
 3. postprocess.py

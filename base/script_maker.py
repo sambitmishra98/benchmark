@@ -13,22 +13,19 @@ class ScriptMaker:
         job_name = f"{self.prefix}nodelist{nodelist}_steps{time_steps}_caware{c}_nodes{nodes}_tasks{nparts}_elems{elems}"
         
         return f'''#!/bin/bash
-## SBATCH --reservation=benchmarking
 #SBATCH -J "{job_name}"
 #SBATCH --ntasks={nparts}
 #SBATCH --gres=gpu:a100:{int(np.ceil(nparts/nodes))}
 #SBATCH --nodes={nodes}
-#SBATCH --exclusive
-#SBATCH --cpus-per-gpu=4
+##SBATCH --exclusive
+#SBATCH --cpus-per-gpu=2
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-00:{self.simulation_wait_time}:00
 #SBATCH --output={job_name}.out
 #SBATCH --no-requeue
 #SBATCH -p gpu
-#SBATCH --mem=512G
-#SBATCH --mail-type=BEGIN,FAIL,END
-#SBATCH --mail-user=sambit98@tamu.edu
+#SBATCH --mem=600G
 #SBATCH --nodelist={nodelist}
 
 module purge
@@ -81,7 +78,7 @@ nvidia_smi_pid=$!
 # nvidia-smi dmon -o DT -d 10 -s ut > "log_gpus" &
 ##  nsys profile --output=pyfr_profile.qdrep --trace=cuda,nvtx,osrt
 
-CMD="mpirun -n {nparts} $python_runner $pyfr_runner run -b cuda $meshf $inif"; 
+CMD="time mpirun -n {nparts} $python_runner $pyfr_runner run -b cuda $meshf $inif"; 
 echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; echo "Time: `date`"
 
 eval $CMD;

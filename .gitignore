@@ -7,3 +7,6 @@ solns/*
 *.txt
 *.pyc
 *.code-workspace
+configurations.csv
+output.csv
+perf-per-GPU.png

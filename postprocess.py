@@ -1,53 +1,55 @@
 import os
 import re
-import glob
 import pandas as pd
 
-def parse_wall_time(filepath):
-    with open(filepath, 'r') as f:
-        for line in f:
-            if "wall-time" in line:
-                return float(line.split('=')[1].strip())
-    return None
-
 def parse_directory(directory):
-    dir_pattern = re.compile(r'solns/([a-zA-Z0-9_\[\]-]+)_steps(\d+)_samples(\d+)_caware(\d+)_nodes(\d+)_tasks(\d+)_elems(\d+)')
+    dir_pattern = re.compile(r'nodelist([a-zA-Z0-9_\[\]-]+)_steps(\d+)_caware(\d+)_nodes(\d+)_tasks(\d+)_elems(\d+)')
     match = dir_pattern.search(directory)
     if match:
         return match.groups()
     return None
 
-def parse_filename(filename):
-    file_pattern = re.compile(r'bm_t([\d\.]+).dat')
-    match = file_pattern.search(filename)
-    if match:
-        return match.groups()
-    return None
 
 def gather_data(root_dir):
+
     data = []
     for dirpath, dirnames, filenames in os.walk(root_dir):
         for filename in filenames:
-            if filename.endswith('.dat'):
+            if filename == 'perf.csv':
                 full_path = os.path.join(dirpath, filename)
-                wall_time = parse_wall_time(full_path)
-                dir_params = parse_directory(dirpath)
-                file_params = parse_filename(filename)
+                df = pd.read_csv(full_path)
+                last_row = df.iloc[-1]
+                steps = last_row['n']
+                mean = last_row['mean']
+                rel_err = last_row['rel-err']
 
-                if wall_time and dir_params and file_params:
-                    data.append((dirpath, filename) + dir_params + file_params + (wall_time,))
+                dir_params = parse_directory(dirpath)
+
+                if mean and rel_err and dir_params:
+                    data.append((dirpath, filename) + dir_params + (steps, mean, rel_err))
 
     return data
-
 def main():
     root_dir = "./solns/"
     data = gather_data(root_dir)
 
-    df = pd.DataFrame(data, columns=['Directory', 'File Name', 
-                                     'Exp', 'Steps', 'Samples', 'Caware', 'Nodes', 
-                                     'Tasks', 'Elements', 'time', 'Wall Time'])
+    df = pd.DataFrame(data, columns=['Directory', 'File Name', 'Node List', 'Steps', 'CAware', 'Nodes', 'Tasks', 'Elements', 'actual-steps', 'mean-perf', 'rem-perf'])
     df = df.apply(pd.to_numeric, errors='ignore') 
-    compute_performance(df)
+    df['mean-perf-per-GPU'] = df['mean-perf'] / df['Tasks']
+
+    # First order    by number of nodes, (ascending)
+    #          then  if cuda-aware or not (descending)
+    #           then by number of tasks, (ascending)
+    df.sort_values(by=['Nodes', 'CAware', 'Tasks'], ascending=[True, False, True], inplace=True)
+
+    # Get perf-per-GPU relative to the first entry
+    first_entry = df.iloc[0]['mean-perf-per-GPU']
+    df['norm-mean-perf-per-GPU'] = df['mean-perf-per-GPU'] / first_entry
+    df['norm-rem-perf'] = df['rem-perf'] *df['mean-perf-per-GPU']/ first_entry
+
+    print(df)
+
+    df.to_csv('output.csv', index=False)
 
 if __name__ == "__main__":
     main()

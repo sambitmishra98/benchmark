@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import numpy as np
-
 
 fff = 1
 
@@ -11,56 +9,59 @@ sns.set_style('whitegrid')
 sns.set_context("paper", font_scale=1.4)
 
 
-array = np.array([[2534619525,	2649364621,	2629667798,	2480419833,	2304416728,	1944781174	,1183374862	,531710884.5,	897497112.3,],
-[2623557887,	2716498812,	2703703529,	2556276758,	2556276758,	2556541174	,982887099.7,	1169064024,	940039931.9,],
-[2597989021,	2687875652,	2684235783,	2670484778,	2545093408,	1179718368,	2653238691,	1308269951,	1182079029,]])/1e9
-
-
-legend_cols = ['Exp', 'Steps', 'Samples', 'Caware', 'Nodes']
+sns.set_style('whitegrid')
+sns.set_context("paper", font_scale=1.5)
+sns.set_palette("colorblind")
 
 # Read the performance data from the CSV file
-df = pd.read_csv(f'consolidated_performance_data_{fff}.csv',
-                 usecols=['Directory', *legend_cols, 'Elements', 'Tasks',
-                          'Performance_Per_GPU-GDOF', 'time'])
-df = df[df['time'] != 0]
+df = pd.read_csv(f'output.csv', 
+    usecols=['Directory', 
+             'Node List', 'Steps', 'CAware', 'Nodes', 'Tasks', 'Elements', 
+             'actual-steps', 'mean-perf', 'rem-perf', 
+             'mean-perf-per-GPU', 'norm-mean-perf-per-GPU','norm-rem-perf'])
 
-# Group the data and calculate the mean and standard deviation of performance
-df_grouped = df.groupby([*legend_cols, 'Tasks'])[
-    'Performance_Per_GPU-GDOF'].agg(['mean', 'std']).reset_index()
+fig, ax = plt.subplots(figsize=(12, 5))
 
-# Plotting the data
-fig, ax = plt.subplots(figsize=(15, 9))
-for key, grp in df_grouped.groupby([*legend_cols,]):
+# Create a bar plot for the performance data, with eror bars
+ax.errorbar(df['Tasks'], df['norm-mean-perf-per-GPU'], 
+            yerr=df['norm-rem-perf'], fmt='o-', capsize=5)
 
-    # Create a formatted legend label using the column names and key values
-    legend_label = f"{key[0]},"+\
-                   f" timesteps: {key[1]},"+\
-                   f" runtime samples: {key[2]},"+\
-                   f" if cuda-aware: {bool(key[3])},"+\
-                   f" number of nodes: {key[4]}"
+ax.hlines(1, 0, df['Tasks'].max(), colors='k', linestyles='dashed', label='Ideal scaling')
 
-    # Customize error bar style
-    ax.errorbar(grp['Tasks'], grp['mean'], yerr=grp['std'], 
-                fmt='o-', capsize=5, 
-                label=' Current Liqid version',
-                )
+first_entry = df.iloc[0]['mean-perf-per-GPU']/1e9
 
-# Set the x-axis label, y-axis label, and title of the plot
-
-ax.plot([1,2,4,6,8,10,12,14,16], array[fff-1,:], label='Previous Liqid version', color='black', linestyle='--', linewidth=2)
+ax.set_title(r'$\mathbf{Weak-scaling\ efficiency\ comparison\ on\ FASTER}$'+'\n'+
+                'Cluster: FASTER, GPU: 40GB NVIDIA A100\n'+
+                'Solver: PyFR 1.15.0\n'+
+                'Case setup: Taylor Green Vortex case with mesh size ~256³ DoF/GPU\n'+
+                f'Normalisation performed w.r.t. simulation on first GPU: {first_entry:.2f} GDoF/s/GPU')
 
 ax.set_xlabel('Total number of GPUs used')
-ax.set_xlim(left=0)
-ax.set_ylabel('Performance metric\n' 
-              'Computations performed per unit runtime per GPU \n '
-              '(GigaDegrees of Freedom per second per GPU ≡ GDoF/s/GPU)')
+ax.set_xlim(0, 16)
+ax.set_xticks(df['Tasks'])
+ax.set_ylabel('Normalised performance')
+              
+#ax.set_ylabel('Performance metric\n'
+#                'Computations performed per unit runtime per GPU \n '
+#                '(GigaDegrees of Freedom per second per GPU ≡ GDoF/s/GPU)')
 ax.set_ylim(bottom=0)
-ax.set_title(r'$\mathbf{Weak-scaling\ performance\ comparison\ for\ different\ configurations}$'+'\n'+
-             'Cluster: FASTER, GPU: 40GB NVIDIA A100\n'+
-             'Solver: PyFR 1.15.0, Case setup: Taylor Green Vortex case with mesh size ~128³ DoF/GPU'+'\n'+
-             legend_label+'\n')
 
-ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),)
+ax.legend(loc='lower left')
 
-# Save the plot as an image file
-plt.savefig(f'performance_plot_{fff}.png', dpi=300, bbox_inches='tight')
+# Create a NOTE box below the plot
+
+# Create a box with the text
+textstr = '\n'.join((
+    r'$\mathbf{NOTE}$',
+    r'Benchmarking performed in https://doi.org/10.1145/3569951.3597565',
+    r'includes non-computation runtime too, like overheads of writing solution files to disk.',))
+
+# Add the box to the plot, just below the xlabel
+ax.text(0.0, -0.25, textstr, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+
+
+
+# Save
+plt.savefig(f'perf-per-GPU.png', dpi=300, bbox_inches='tight')

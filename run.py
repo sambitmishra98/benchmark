@@ -2,44 +2,6 @@ import subprocess
 import os
 import pandas as pd
 
-c = pd.DataFrame( 
-               [
-#                ['fc024', 2000,     1,                     1,    1,             32, ],
-#                ['fc024', 2000,     1,                     1,    2,             40, ],
-#                ['fc024', 2000,     1,                     1,    4,             51, ],
-#                ['fc024', 2000,     1,                     1,    6,             58, ],
-#                ['fc024', 2000,     1,                     1,    8,             64, ],
-#                ['fc024', 2000,     1,                     1,   10,             69, ],
-#                ['fc024', 2000,     1,                     1,   12,             73, ],
-#                ['fc024', 2000,     1,                     1,   14,             77, ],
-#                ['fc024', 2000,     1,                     1,   16,             81, ],
-#                ['fc024', 2000,     1,                     1,    1,             64, ],
-#                ['fc024', 2000,     1,                     1,    2,             81, ],
-#                ['fc024', 2000,     1,                     1,    4,            102, ],
-#                ['fc024', 2000,     1,                     1,    6,            116, ],
-#                ['fc024', 2000,     1,                     1,    8,            128, ],
-#                ['fc024', 2000,     1,                     1,   10,            138, ],
-#                ['fc024', 2000,     1,                     1,   12,            147, ],
-#                ['fc024', 2000,     1,                     1,   14,            154, ],
-#                ['fc024', 2000,     1,                     1,   16,            161, ],
-#                ['fc024', 2000,     1,                     1,    1,             96, ],
-#                ['fc024', 2000,     1,                     1,    2,            121, ],
-#                ['fc024', 2000,     1,                     1,    4,            152, ],
-#                ['fc024', 2000,     1,                     1,    6,            174, ],
-#                ['fc024', 2000,     1,                     1,    8,            192, ],
-#                ['fc024', 2000,     1,                     1,   10,            207, ],
-#                ['fc024', 2000,     1,                     1,   12,            220, ],
-#                ['fc024', 2000,     1,                     1,   14,            231, ],
-#                ['fc024', 2000,     1,                     1,   16,            242, ],
-
-#                 ['fc004',  2000,   1,                     1,    1,            96, ],
-                ['fc026', 100,   1,                     1,   1,              96, ],
-#                ['fc004', 10,   1,                     1,   16,            242, ],
-
-                ], 
-
-    columns=['nodelist', 'nsteps', 'caware','nnodes', 'nparts-per-node', 'nelements', ])
-
 def submit_job(job_script):
 
     try:
@@ -56,6 +18,15 @@ def submit_job(job_script):
         print(f"An error occurred while submitting {job_script}: {e}")
 
 if __name__ == "__main__":
+
+    c = pd.read_csv('configurations.csv', comment='#' )
+
+    Expected_columns = pd.Index(['nodelist', 'nsteps', 'caware','nnodes', 'nparts-per-node', 'nelements', ])
+
+    if not c.columns.equals(Expected_columns):
+        print(c.columns)
+        print(Expected_columns)
+        raise ValueError('Columns of configurations.csv do not match expected columns')
 
     prefix = ''
 
