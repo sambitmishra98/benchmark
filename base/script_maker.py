@@ -5,85 +5,112 @@ class ScriptMaker:
     def __init__(self, prefix = ''):
 
         self.prefix = prefix
-        self.venv_bin_path = "/scratch/user/sambit98/virtual-environments/benchmark/bin/"
-        self.benchmark_path = "/scratch/user/sambit98/BENCHMARK/benchmarking/"
-        self.simulation_wait_time = '30' # in minutes
+        self.simulation_wait_time = '6' # in hours
 
-    def generate_slurm_script(self, nodelist, time_steps, c, nodes, nparts, elems,):
-        job_name = f"{self.prefix}nodelist{nodelist}_steps{time_steps}_caware{c}_nodes{nodes}_tasks{nparts}_elems{elems}"
-        
+    def generate_slurm_script(self, nodelist, steps, backend, caware, order, precision, nodes, ntasks , etype, elems, partition, gpu):
+
+        # If the string nodelist contains the substring 'ac' then we are working on the ACES cluster
+        # else if nodelist contains the substring 'fc' then we are working on the FASTER cluster
+        if   'ac' in nodelist: cluster = 'ACES'
+        elif 'fc' in nodelist: cluster = 'FASTER'
+        else:                  raise ValueError(f"Cluster not supported")
+
+        mpi_lib = 'mpich'   # Use MPICH everywhere
+
+        if   backend ==   'cuda': srun_or_mpirun = f'export MPIR_CVAR_ENABLE_GPU=1 ; time srun --mpi=pmi2'          # ; mpi_library = 'openmpi'
+        elif backend == 'opencl': srun_or_mpirun = f'export MPIR_CVAR_ENABLE_GPU=0 ; time mpirun' # ; mpi_library = 'mpich'
+        elif backend in ['hip', 'metal', 'openmp']: 
+            raise ValueError(f"Backend {backend} yet to be supported")
+        else: 
+            raise ValueError(f"Backend {backend} DOES NOT EXIST!!")
+
+        a100_subscripts = {
+            'setup': f'nvidia-smi; clinfo -l',
+            'run': f'CMD="{srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
+                     f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";\n'\
+                        f'eval $CMD;',
+        }
+
+        pvc_subscripts = {
+            'setup': f'setup_custom_libraries_venv_{mpi_lib} ; clinfo -l',
+            'run': f'xpumcli dump -d -1 -m 0,2,3,5,6,7,17,18 -i 10 > "log_gpus" &\n' \
+                   f'xpumanager_pid=$!\n'\
+                   f'CMD="time srun --mpi=pmi2 -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
+                   f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; \n'\
+                   f'eval $CMD;\n'\
+                   f'kill $xpumanager_pid'\
+                    }
+
+        h100_subscripts = {
+            'setup': f'setup_custom_libraries_venv_{mpi_lib} ; clinfo -l',
+            'run': f'CMD="time {srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
+                   f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";\n'\
+                   f'eval $CMD;',
+        }
+
+        # Options
+        # 1.   aces, pvc,  pvc, opencl
+        # 2.   aces, gpu, h100, opencl        
+        # 3.   aces, gpu, h100,   cuda
+        # 4. faster, gpu, a100, opencl
+        # 5. faster, gpu, a100,   cuda
+
+        if   partition == 'pvc' and gpu ==  'pvc': subscript_setup =  pvc_subscripts['setup']; subscript_run =  pvc_subscripts['run']
+        elif partition == 'gpu' and gpu == 'h100': subscript_setup = h100_subscripts['setup']; subscript_run = h100_subscripts['run']
+        elif partition == 'gpu' and gpu == 'a100': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
+        elif partition == 'gpu' and gpu ==  'a40': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
+        elif partition == 'gpu' and gpu ==  'a10': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
+        elif partition == 'gpu' and gpu ==   't4': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
+        else: raise ValueError(f"Partition {partition} not supported")
+
+        job_name = f"{self.prefix}partition{partition}_nodelist{nodelist}_" \
+                   f"steps{steps}_backend{backend}_caware{caware}_order{order}_precision{precision}_nodes{nodes}_" \
+                   f"tasks{ntasks}_{etype}{elems}"
+
         return f'''#!/bin/bash
-#SBATCH -J "{job_name}"
-#SBATCH --ntasks={nparts}
-#SBATCH --gres=gpu:a100:{int(np.ceil(nparts/nodes))}
+#SBATCH --job-name="{job_name}"
+#SBATCH --time=0-{self.simulation_wait_time}:00:00
+#SBATCH --ntasks={ntasks}
 #SBATCH --nodes={nodes}
+#SBATCH --cpus-per-gpu=8
+#SBATCH --mem=80G
 ##SBATCH --exclusive
-#SBATCH --cpus-per-gpu=2
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
-#SBATCH --time=0-00:{self.simulation_wait_time}:00
-#SBATCH --output={job_name}.out
 #SBATCH --no-requeue
-#SBATCH -p gpu
-#SBATCH --mem=600G
-#SBATCH --nodelist={nodelist}
+#SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}
+#SBATCH --partition={partition}
+#SBATCH --output={job_name}.out
+##SBATCH --nodelist={nodelist}
 
-module purge
+source ~/.bashrc
 
-/sw/local/bin/query_gpu.sh
+add_all_paths
 
-local=/scratch/user/sambit98/.local/
-export            PATH=$local/bin/:$PATH
-export           CPATH=$local/include/:$CPATH
-export          CPPATH=$local/include/:$CPPATH
-export          LDPATH=$local/lib/:$LDPATH
-export    LIBRARY_PATH=$local/lib/:$LIBRARY_PATH
-export LD_LIBRARY_PATH=$local/lib/:$LD_LIBRARY_PATH
-
-module load foss/2022b
-module load UCX-CUDA/1.13.1-CUDA-11.8.0
-module load libffi/3.4.4
-module load OpenSSL/1.1.1n
-module load METIS/5.1.0
-module load HDF5/1.14.0
-module load SQLite/3.39.4
-module load bzip2/1.0.8
-
-. {self.venv_bin_path}activate
+{subscript_setup}
 
 numnodes=$SLURM_JOB_NUM_NODES
-mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\\1/')
+mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\\([0-9][0-9]*\\).*$/\\1/')
 np=$[${{SLURM_JOB_NUM_NODES}}*${{mpi_tasks_per_node}}]
-
-python_runner="{self.venv_bin_path}python3"
-pyfr_runner="{self.venv_bin_path}pyfr"
-
-cd     "{self.benchmark_path}"
-inif="{self.benchmark_path}configs/steps{time_steps}_caware{c}_parts{nparts}_elems{elems}.ini"
-meshf="{self.benchmark_path}partitions/parts{nparts}_elems{elems}.pyfrm"; 
 
 echo "Running on master node: `hostname`"
 echo "Time: `date`"
 echo "Current directory: `pwd`"
 echo -e "JobID: $SLURM_JOB_ID\\n======"
-echo -e "\\nnumtasks=${{SLURM_NTASKS}}, numnodes=${{SLURM_JOB_NUM_NODES}}, mpi_tasks_per_node=${{mpi_tasks_per_node}} (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
+echo -e "Tasks=${{SLURM_NTASKS}},nodes=${{SLURM_JOB_NUM_NODES}}, mpi_tasks_per_node=${{mpi_tasks_per_node}} (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
 
-mkdir -p {self.benchmark_path}solns/{self.prefix}nodelist{nodelist}_steps{time_steps}_caware{c}_nodes{nodes}_tasks{nparts}_elems{elems};
-cd       {self.benchmark_path}solns/{self.prefix}nodelist{nodelist}_steps{time_steps}_caware{c}_nodes{nodes}_tasks{nparts}_elems{elems}; 
+# ------------------------------------------------------------------------------
+inif="../../configs/steps{steps}_caware{caware}_order{order}_precision{precision}_tasks{ntasks}_{etype}{elems}.ini"
+meshf="../../partitions/tasks{ntasks}_{etype}{elems}.pyfrm"; 
+# ------------------------------------------------------------------------------
+
+echo $PATH
 
 
-nvidia-smi --query-gpu=index,name,pci.bus,persistence_mode,timestamp,pstate,utilization.gpu,utilization.memory --format=csv -l 5 -f log_gpus.csv &
-nvidia_smi_pid=$!
+# Run subscript
+{subscript_run}
 
-# nvidia-smi dmon -o DT -d 10 -s ut > "log_gpus" &
-##  nsys profile --output=pyfr_profile.qdrep --trace=cuda,nvtx,osrt
-
-CMD="time mpirun -n {nparts} $python_runner $pyfr_runner run -b cuda $meshf $inif"; 
-echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; echo "Time: `date`"
-
-eval $CMD;
-
-kill $nvidia_smi_pid
+# ------------------------------------------------------------------------------
 
 echo -e "\\nSimulation ends\\n"
         '''
@@ -98,18 +125,21 @@ echo -e "\\nSimulation ends\\n"
 
         return True
 
-    def make_scripts(self, nodelist, nsteps, caware, nnodes,   ntasks_per_node, nelements, ):
+    def make_scripts(self, npartition, nnodelist,  ngpu,
+                           nsteps, nbackend, ncaware, norder, nprecision,
+                           nnodes, ntasks_per_node, 
+                           netype, nelements,):
 
         os.system("mkdir -p scripts")
         
-        for nodelist, time_steps, c, nodes, tasks_per_node, elements in zip(nodelist, nsteps, caware, nnodes, ntasks_per_node, nelements):
+        for nodelist, steps, backend, caware, order, precision, nodes, tasks_per_node, etype, elements, partition, gpu in zip(nnodelist, nsteps, nbackend, ncaware, norder, nprecision, nnodes, ntasks_per_node, netype, nelements, npartition, ngpu):
 
             tasks = nodes * tasks_per_node
 
-            script = self.generate_slurm_script(nodelist, time_steps, c, nodes, tasks, elements)
-            output = f"scripts/{self.prefix}nodelist{nodelist}_steps{time_steps}_caware{c}_nodes{nodes}_tasks{tasks}_elems{elements}.sh"
+            script = self.generate_slurm_script(nodelist, steps, backend, caware, order, precision, nodes, tasks, etype, elements, partition, gpu)
+            output = f"scripts/{self.prefix}partition{partition}_gpu{gpu}_nodelist{nodelist}_steps{steps}_backend{backend}_caware{caware}_order{order}_precision{precision}_nodes{nodes}_tasks{tasks}_{etype}{elements}.sh"
             if not os.path.isfile(output):
                 self.write_script_to_file(script, output)
-                print(f"Created script: {output}")
+                print(f"Script created: {output}")
             else:
-                print(f"Script exists at : {output}")
+                print(f"Script  exists: {output}")

@@ -10,3 +10,5 @@ solns/*
 configurations.csv
 output.csv
 perf-per-GPU.png
+M1_output.csv
+output_FASTER.csv

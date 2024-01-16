@@ -22,18 +22,36 @@ df = pd.read_csv(f'output.csv',
 
 fig, ax = plt.subplots(figsize=(12, 5))
 
-# Create a bar plot for the performance data, with eror bars
-ax.errorbar(df['Tasks'], df['norm-mean-perf-per-GPU'], 
-            yerr=df['norm-rem-perf'], fmt='o-', capsize=5)
+# Create a bar plot for the performance data, with eror bars, grouped by Elements
+
+# First, find the number of unique elements
+elements = df['Elements'].unique()
+
+# Then, for each element, plot the performance data
+
+for element in elements:
+    # Get the subset of the data for the current element
+    sub_df = df[df['Elements'] == element]
+
+    # Plot the performance data for the current element
+    ax.errorbar(sub_df['Tasks'], sub_df['norm-mean-perf-per-GPU'], 
+            yerr=sub_df['norm-rem-perf'], fmt='o-', capsize=5, label=element)
+
+
+#ax.errorbar(df['Tasks'], df['norm-mean-perf-per-GPU'], 
+#            yerr=df['norm-rem-perf'], fmt='o-', capsize=5)
+#
+
+
 
 ax.hlines(1, 0, df['Tasks'].max(), colors='k', linestyles='dashed', label='Ideal scaling')
 
 first_entry = df.iloc[0]['mean-perf-per-GPU']/1e9
 
 ax.set_title(r'$\mathbf{Weak-scaling\ efficiency\ comparison\ on\ FASTER}$'+'\n'+
-                'Cluster: FASTER, GPU: 40GB NVIDIA A100\n'+
+                'Cluster: ACES, GPU: Intel MAX GPUs\n'+
                 'Solver: PyFR 1.15.0\n'+
-                'Case setup: Taylor Green Vortex case with mesh size ~256³ DoF/GPU\n'+
+                'Case setup: Taylor Green Vortex case on one GPU\n'+
                 f'Normalisation performed w.r.t. simulation on first GPU: {first_entry:.2f} GDoF/s/GPU')
 
 ax.set_xlabel('Total number of GPUs used')
@@ -43,7 +61,7 @@ ax.set_ylabel('Normalised performance')
               
 #ax.set_ylabel('Performance metric\n'
 #                'Computations performed per unit runtime per GPU \n '
-#                '(GigaDegrees of Freedom per second per GPU ≡ GDoF/s/GPU)')
+#                '(GigaDegrees of Freedom per second per GPU â¡ GDoF/s/GPU)')
 ax.set_ylim(bottom=0)
 
 ax.legend(loc='lower left')

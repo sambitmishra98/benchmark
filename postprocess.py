@@ -2,18 +2,21 @@ import os
 import re
 import pandas as pd
 
-def parse_directory(directory):
-    dir_pattern = re.compile(r'nodelist([a-zA-Z0-9_\[\]-]+)_steps(\d+)_caware(\d+)_nodes(\d+)_tasks(\d+)_elems(\d+)')
-    match = dir_pattern.search(directory)
+PATTERN = re.compile(
+    r'partition(pvc|gpu)_gpu(pvc|h100|a100)_nodelist(\w+)_steps(\d+)_backend(cuda|opencl|openmp|hip|metal)_caware(0|1)_order(\d+)_precision(single|double)_nodes(\d+)_tasks(\d+)_(hex|tet|pri|pyr)(\d+)'
+)
+
+def parse_directory(directory, prefix):
+    match = PATTERN.search(directory)
     if match:
         return match.groups()
     return None
 
-
-def gather_data(root_dir):
+def gather_data(root_dir, prefix=''):
 
     data = []
-    for dirpath, dirnames, filenames in os.walk(root_dir):
+
+    for dirpath, _, filenames in os.walk(root_dir):
         for filename in filenames:
             if filename == 'perf.csv':
                 full_path = os.path.join(dirpath, filename)
@@ -23,7 +26,7 @@ def gather_data(root_dir):
                 mean = last_row['mean']
                 rel_err = last_row['rel-err']
 
-                dir_params = parse_directory(dirpath)
+                dir_params = parse_directory(dirpath, prefix)
 
                 if mean and rel_err and dir_params:
                     data.append((dirpath, filename) + dir_params + (steps, mean, rel_err))
@@ -31,9 +34,13 @@ def gather_data(root_dir):
     return data
 def main():
     root_dir = "./solns/"
-    data = gather_data(root_dir)
+    prefix = ''
+    data = gather_data(root_dir, prefix)
 
-    df = pd.DataFrame(data, columns=['Directory', 'File Name', 'Node List', 'Steps', 'CAware', 'Nodes', 'Tasks', 'Elements', 'actual-steps', 'mean-perf', 'rem-perf'])
+    columns = ['directory', 'filename', 'partition', 'accelerator', 'nodelist', 'Steps', 'backend', 'CAware', 'order', 'precision', 'Nodes', 'Tasks', 'etype', 'Elements', 'actual-steps', 'mean-perf', 'rem-perf']
+
+    df = pd.DataFrame(data, columns=columns)
+
     df = df.apply(pd.to_numeric, errors='ignore') 
     df['mean-perf-per-GPU'] = df['mean-perf'] / df['Tasks']
 
@@ -47,7 +54,14 @@ def main():
     df['norm-mean-perf-per-GPU'] = df['mean-perf-per-GPU'] / first_entry
     df['norm-rem-perf'] = df['rem-perf'] *df['mean-perf-per-GPU']/ first_entry
 
-    print(df)
+    # only print the columns for the following
+    # precision, nodes, tasks, etype, elements, mean-perf-per-GPU, rem-perf
+
+    df = df[df['backend'] == 'cuda']
+
+
+    print(df[['backend', 'CAware', 'Steps', 'Tasks', 'Elements', 
+              'mean-perf-per-GPU', 'rem-perf',]])
 
     df.to_csv('output.csv', index=False)
 
