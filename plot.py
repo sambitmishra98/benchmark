@@ -8,16 +8,14 @@ fff = 1
 sns.set_style('whitegrid')
 sns.set_context("paper", font_scale=1.4)
 
-
 sns.set_style('whitegrid')
 sns.set_context("paper", font_scale=1.5)
 sns.set_palette("colorblind")
 
 # Read the performance data from the CSV file
-df = pd.read_csv(f'output.csv', 
-    usecols=['Directory', 
-             'Node List', 'Steps', 'CAware', 'Nodes', 'Tasks', 'Elements', 
-             'actual-steps', 'mean-perf', 'rem-perf', 
+df = pd.read_csv(f'output_a100_multiGPU.csv', 
+    usecols=['CAware', 'Tasks', 'Elements', 
+             'mean-perf', 'rem-perf', 
              'mean-perf-per-GPU', 'norm-mean-perf-per-GPU','norm-rem-perf'])
 
 fig, ax = plt.subplots(figsize=(12, 5))
@@ -37,12 +35,9 @@ for element in elements:
     ax.errorbar(sub_df['Tasks'], sub_df['norm-mean-perf-per-GPU'], 
             yerr=sub_df['norm-rem-perf'], fmt='o-', capsize=5, label=element)
 
-
 #ax.errorbar(df['Tasks'], df['norm-mean-perf-per-GPU'], 
 #            yerr=df['norm-rem-perf'], fmt='o-', capsize=5)
 #
-
-
 
 ax.hlines(1, 0, df['Tasks'].max(), colors='k', linestyles='dashed', label='Ideal scaling')
 
@@ -77,9 +72,6 @@ textstr = '\n'.join((
 # Add the box to the plot, just below the xlabel
 ax.text(0.0, -0.25, textstr, transform=ax.transAxes, fontsize=14,
         verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-
-
-
 
 # Save
 plt.savefig(f'perf-per-GPU.png', dpi=300, bbox_inches='tight')

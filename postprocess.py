@@ -3,7 +3,7 @@ import re
 import pandas as pd
 
 PATTERN = re.compile(
-    r'partition(pvc|gpu)_gpu(pvc|h100|a100)_nodelist(\w+)_steps(\d+)_backend(cuda|opencl|openmp|hip|metal)_caware(0|1)_order(\d+)_precision(single|double)_nodes(\d+)_tasks(\d+)_(hex|tet|pri|pyr)(\d+)'
+    r'partition(pvc|gpu)_gpu(pvc|h100|a100|a40)_nodelist(\w+)_steps(\d+)_backend(cuda|opencl|openmp|hip|metal)_caware(0|1)_order(\d+)_precision(single|double)_nodes(\d+)_tasks(\d+)_(hex|tet|pri|pyr)(\d+)'
 )
 
 def parse_directory(directory, prefix):
@@ -57,7 +57,7 @@ def main():
     # only print the columns for the following
     # precision, nodes, tasks, etype, elements, mean-perf-per-GPU, rem-perf
 
-    df = df[df['backend'] == 'cuda']
+    df = df[df['accelerator'] == 'a100']
 
 
     print(df[['backend', 'CAware', 'Steps', 'Tasks', 'Elements', 

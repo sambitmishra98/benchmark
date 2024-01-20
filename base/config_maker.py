@@ -158,11 +158,11 @@ class ConfigMaker:
 #            "file": "residual.csv",
 #            "header": "true",
 #        }
-        config["soln-plugin-writer"] = {
-            "dt-out": str(10**expo_dt),
-            "basedir": ".",
-            "basename": f"soln-{{t:.{-expo_dt}f}}",
-        }
+#        config["soln-plugin-writer"] = {
+#            "dt-out": str(10**expo_dt),
+#            "basedir": ".",
+#            "basename": f"soln-{{t:.{-expo_dt}f}}",
+#        }
 
         # Write the config file
         with open(output_file, 'w') as configfile:

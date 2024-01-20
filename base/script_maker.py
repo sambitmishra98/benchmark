@@ -16,16 +16,16 @@ class ScriptMaker:
         else:                  raise ValueError(f"Cluster not supported")
 
         mpi_lib = 'mpich'   # Use MPICH everywhere
-
-        if   backend ==   'cuda': srun_or_mpirun = f'export MPIR_CVAR_ENABLE_GPU=1 ; time srun --mpi=pmi2'          # ; mpi_library = 'openmpi'
-        elif backend == 'opencl': srun_or_mpirun = f'export MPIR_CVAR_ENABLE_GPU=0 ; time mpirun' # ; mpi_library = 'mpich'
+        #export MPIR_CVAR_ENABLE_GPU=1 ; 
+        if   backend ==   'cuda': srun_or_mpirun = f'time mpirun' #
+        elif backend == 'opencl': srun_or_mpirun = f'time mpirun' #
         elif backend in ['hip', 'metal', 'openmp']: 
             raise ValueError(f"Backend {backend} yet to be supported")
         else: 
             raise ValueError(f"Backend {backend} DOES NOT EXIST!!")
 
         a100_subscripts = {
-            'setup': f'nvidia-smi; clinfo -l',
+            'setup': f'/sw/local/bin/query_gpu.sh ; nvidia-smi -L ; clinfo -l',
             'run': f'CMD="{srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
                      f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";\n'\
                         f'eval $CMD;',
@@ -69,19 +69,20 @@ class ScriptMaker:
 
         return f'''#!/bin/bash
 #SBATCH --job-name="{job_name}"
-#SBATCH --time=0-{self.simulation_wait_time}:00:00
-#SBATCH --ntasks={ntasks}
 #SBATCH --nodes={nodes}
-#SBATCH --cpus-per-gpu=8
-#SBATCH --mem=80G
 ##SBATCH --exclusive
+##SBATCH --reservation=r3_debugging
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
-#SBATCH --no-requeue
-#SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}
-#SBATCH --partition={partition}
+#SBATCH --time=0-{self.simulation_wait_time}:00:00
+#SBATCH --mem=80G
 #SBATCH --output={job_name}.out
-##SBATCH --nodelist={nodelist}
+#SBATCH --no-requeue
+#SBATCH --partition={partition}
+#SBATCH --ntasks={ntasks}
+#SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}
+#SBATCH --cpus-per-gpu=8
+#SBATCH --nodelist={nodelist}
 
 source ~/.bashrc
 
@@ -105,7 +106,6 @@ meshf="../../partitions/tasks{ntasks}_{etype}{elems}.pyfrm";
 # ------------------------------------------------------------------------------
 
 echo $PATH
-
 
 # Run subscript
 {subscript_run}

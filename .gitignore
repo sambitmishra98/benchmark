@@ -12,3 +12,12 @@ output.csv
 perf-per-GPU.png
 M1_output.csv
 output_FASTER.csv
+config_weak.csv
+configuration_strong.csv
+configuration_weak.csv
+output_a100_multiGPU_compute.csv
+output_a100_multiGPU.csv
+output_FAULT_INSTALL.csv
+output_FOSS.csv
+output-a40.csv
+result_single-GPU.csv
