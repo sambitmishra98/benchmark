@@ -1,15 +1,15 @@
 import pandas as pd
 import numpy as np
 
-SCALING_TYPE = 'weak'
-BASE_ELEMENTS = 48
-BASE_PARTS_PER_NODE = 8
+SCALING_TYPE = 'strong'
+BASE_ELEMENTS = 32
+BASE_PARTS_PER_NODE = 20
 
 # GLOBAL VARIABLES
-NODELIST = 'fc031'
+NODELIST = 'fc036'
 NSTEPS = 100
-BACKEND = 'opencl'
-CAWARE = 0
+BACKEND = ['opencl', 'cuda']
+CAWARE = [0,1]
 ORDER = 3
 PRECISION = 'double'
 #NNODES = 1
@@ -17,7 +17,7 @@ PRECISION = 'double'
 ETYPE = 'hex'
 #NELEMENTS = 64
 PARTITION = 'gpu'
-GPU = 'a100'
+GPU = 'h100'
 
 # Create a csv file called config_weak.csv
 
@@ -45,7 +45,7 @@ c = pd.DataFrame(columns=['nodelist', 'nsteps', 'backend', 'caware', 'order', 'p
 # gpu = 'a100'
 
 # below is equal to [1,2,3,4,5,6,7,8]
-npnode_list = np.arange(1, BASE_PARTS_PER_NODE+1)
+npnode_list = np.array([20,18,16,14,12,10,8,6,4,2,1])
 nnode_list = np.ones(len(npnode_list), dtype=int)
 
 if SCALING_TYPE == 'weak':
@@ -55,20 +55,34 @@ elif SCALING_TYPE == 'strong':
 else:
     raise ValueError('SCALING_TYPE must be either "weak" or "strong".')
 
-# Or ,in a more compact way:
-c = pd.DataFrame({'nodelist'       : [NODELIST]  * len(nnode_list),
-                  'nsteps'         : [NSTEPS]    * len(nnode_list),
-                  'backend'        : [BACKEND]   * len(nnode_list),
-                  'caware'         : [CAWARE]    * len(nnode_list),
-                  'order'          : [ORDER]     * len(nnode_list),
-                  'precision'      : [PRECISION] * len(nnode_list),
-                  'nnodes'         : nnode_list,
-                  'nparts-per-node': npnode_list,
-                  'etype'          : [ETYPE]     * len(nnode_list),
-                  'nelements'      : nelements_list,
-                  'partition'      : [PARTITION] * len(nnode_list),
-                  'gpu'            : [GPU]       * len(nnode_list)
-                  })
 
+# Empty dataframe
+c = pd.DataFrame(columns=['nodelist', 'nsteps', 'backend', 'caware', 'order', 'precision',
+                            'nnodes', 'nparts-per-node', 
+                            'etype', 'nelements', 
+                            'partition', 'gpu',
+                            ])
+
+for backend in BACKEND:
+    for caware in CAWARE:
+
+        if backend == 'opencl' and caware == 1:
+            continue
+
+        c = c._append(pd.DataFrame({'nodelist'           : [NODELIST]  * len(nnode_list),
+                                    'nsteps'             : [NSTEPS]    * len(nnode_list),
+                                        'backend'        : [backend]   * len(nnode_list),
+                                        'caware'         : [caware]    * len(nnode_list),
+                                        'order'          : [ORDER]     * len(nnode_list),
+                                        'precision'      : [PRECISION] * len(nnode_list),
+                                        'nnodes'         : nnode_list,
+                                        'nparts-per-node': npnode_list,
+                                        'etype'          : [ETYPE]     * len(nnode_list),
+                                        'nelements'      : nelements_list,
+                                        'partition'      : [PARTITION] * len(nnode_list),
+                                        'gpu'            : [GPU]       * len(nnode_list)
+                                        }))
+        
 # Write the config_weak.csv file
-c.to_csv(f'configuration_{SCALING_TYPE}.csv', index=False)
+c.to_csv(f'configuration_{SCALING_TYPE}_{ETYPE}{BASE_ELEMENTS}.csv', 
+         index=False)

@@ -20,7 +20,13 @@ def gather_data(root_dir, prefix=''):
         for filename in filenames:
             if filename == 'perf.csv':
                 full_path = os.path.join(dirpath, filename)
-                df = pd.read_csv(full_path)
+
+                try:
+                    df = pd.read_csv(full_path)
+                except Exception as e:
+                    print(f"Error reading {full_path}: {e}")
+                    continue
+
                 last_row = df.iloc[-1]
                 steps = last_row['n']
                 mean = last_row['mean']
@@ -57,11 +63,14 @@ def main():
     # only print the columns for the following
     # precision, nodes, tasks, etype, elements, mean-perf-per-GPU, rem-perf
 
-    df = df[df['accelerator'] == 'a100']
+#    df = df[df['Elements'] == 128]
 
-
-    print(df[['backend', 'CAware', 'Steps', 'Tasks', 'Elements', 
-              'mean-perf-per-GPU', 'rem-perf',]])
+    # Print everything
+    print(df[['backend', 'CAware', 'Tasks', 
+              #'Elements', 
+              'mean-perf-per-GPU', 'rem-perf',]].to_string(index=False),
+          sep='\n', 
+          end='\n\n')
 
     df.to_csv('output.csv', index=False)
 

@@ -32,9 +32,6 @@ if __name__ == "__main__":
 
     prefix = ''
 
-    base_dir = "/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/" #  "/scratch/user/u.sm121949/EFFORT_Setting-up-PyFR-on-PVCs/benchmarking_intel_GPUs/"
-    soln_dir   = base_dir + "solns/"
-    script_dir = base_dir + "scripts/"
     
     # List to store all the Job IDs
     job_ids = []
@@ -42,6 +39,19 @@ if __name__ == "__main__":
     # Iterate over the list of scripts and submit each one
     for        partition,     gpu,     nodelist,       nsteps,      backend,         caware,      order,        precision,       nnodes,       ntasks,              etype,     nelements,  in  \
     zip(    c['partition'],c['gpu'],c['nodelist'],  c['nsteps'], c['backend'],    c['caware'], c['order'],   c['precision'],  c['nnodes'],  c['nparts-per-node'],c['etype'],c['nelements'],):
+
+        if   'ac' in nodelist: 
+            cluster = 'ACES'
+            base_dir = "/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/"
+    
+        elif 'fc' in nodelist: 
+            cluster = 'FASTER'
+            base_dir = "/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/"
+        else:                  raise ValueError(f"Cluster not supported")
+
+        soln_dir   = base_dir + "solns/"
+        script_dir = base_dir + "scripts/"
+
         sbatch_script = f"{prefix}partition{partition}_gpu{gpu}_nodelist{nodelist}_steps{nsteps}_backend{backend}_caware{caware}_order{order}_precision{precision}_nodes{nnodes}_tasks{ntasks*nnodes}_{etype}{nelements}.sh"
 
         script_name = os.path.basename(sbatch_script)
