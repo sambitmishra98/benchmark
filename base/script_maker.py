@@ -11,14 +11,15 @@ class ScriptMaker:
 
         # If the string nodelist contains the substring 'ac' then we are working on the ACES cluster
         # else if nodelist contains the substring 'fc' then we are working on the FASTER cluster
+        if    'g' in nodelist: cluster = 'Grace'
         if   'ac' in nodelist: cluster = 'ACES'
         elif 'fc' in nodelist: cluster = 'FASTER'
         else:                  raise ValueError(f"Cluster not supported")
 
         mpi_lib = 'mpich'   # Use MPICH everywhere
         #export MPIR_CVAR_ENABLE_GPU=1 ; 
-        if   backend ==   'cuda': srun_or_mpirun = f'time mpirun  '
-        elif backend == 'opencl': srun_or_mpirun = f'time mpirun '
+        if   backend ==   'cuda': srun_or_mpirun = f'time mpirun' #
+        elif backend == 'opencl': srun_or_mpirun = f'time mpirun' #
         elif backend in ['hip', 'metal', 'openmp']: 
             raise ValueError(f"Backend {backend} yet to be supported")
         else: 
@@ -42,8 +43,8 @@ class ScriptMaker:
                     }
 
         h100_subscripts = {
-            'setup': f'/sw/local/bin/query_gpu.sh ; nvidia-smi -L ; clinfo -l',
-            'run': f'CMD="{srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
+            'setup': f'setup_custom_libraries_venv_{mpi_lib} ; clinfo -l',
+            'run': f'CMD="time {srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
                    f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";\n'\
                    f'eval $CMD;',
         }
@@ -71,7 +72,7 @@ class ScriptMaker:
 #SBATCH --job-name="{job_name}"
 #SBATCH --nodes={nodes}
 ##SBATCH --exclusive
-#SBATCH --reservation=benchmarking
+##SBATCH --reservation=r3_debugging
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-{self.simulation_wait_time}:00:00
@@ -82,7 +83,7 @@ class ScriptMaker:
 #SBATCH --ntasks={ntasks}
 #SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}
 #SBATCH --cpus-per-gpu=8
-##SBATCH --nodelist={nodelist}
+#SBATCH --nodelist={nodelist}
 
 source ~/.bashrc
 
