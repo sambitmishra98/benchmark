@@ -21,7 +21,8 @@ if __name__ == "__main__":
 
 
     c = pd.read_csv('configurations.csv', comment='#', 
-                    dtype={'nodelist':str, 
+                    dtype={'prefix':str,
+                           'nodelist':str, 
                            'nsteps':int, 'backend':str, 'caware':int, 'order':int, 'precision':str,
                            'nnodes':int, 'nparts-per-node':int, 
                            'etype':str, 'nelements':int, 
@@ -30,20 +31,21 @@ if __name__ == "__main__":
                     skipinitialspace=True,
                     )
 
-    prefix = ''
 
     
     # List to store all the Job IDs
     job_ids = []
     
     # Iterate over the list of scripts and submit each one
-    for        partition,     gpu,     nodelist,       nsteps,      backend,         caware,      order,        precision,       nnodes,       ntasks,              etype,     nelements,  in  \
-    zip(    c['partition'],c['gpu'],c['nodelist'],  c['nsteps'], c['backend'],    c['caware'], c['order'],   c['precision'],  c['nnodes'],  c['nparts-per-node'],c['etype'],c['nelements'],):
+    for      prefix,       partition,     gpu,     nodelist,       nsteps,      backend,         caware,      order,        precision,       nnodes,       ntasks,              etype,     nelements,  in  \
+    zip(  c['prefix'],  c['partition'],c['gpu'],c['nodelist'],  c['nsteps'], c['backend'],    c['caware'], c['order'],   c['precision'],  c['nnodes'],  c['nparts-per-node'],c['etype'],c['nelements'],):
 
         if   'ac' in nodelist: 
             cluster = 'ACES'
             base_dir = "/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/"
-    
+        elif   'g' in nodelist: 
+            cluster = 'Grace'
+            base_dir = "/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/"
         elif 'fc' in nodelist: 
             cluster = 'FASTER'
             base_dir = "/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/"

@@ -1,0 +1,39 @@
+export BUILD_NAME=$1
+export NODE_NAME=$2
+export BUILD_OPENMPI_VER=$3
+
+export MAKE_NP=48
+
+# --------------------- GETS ---------------------
+
+get_osu_micro_benchmarks_git(){
+    mkdir -p $GIT_DOWNLOAD/osu-micro-benchmarks
+    cd $GIT_DOWNLOAD/osu-micro-benchmarks
+    echo "Downloading OSU Micro Benchmarks in $GIT_DOWNLOAD/osu-micro-benchmarks"
+    git clone https://github.com/forresti/osu-micro-benchmarks.git $GIT_DOWNLOAD/osu-micro-benchmarks
+}
+
+# --------------------- SETUPS ---------------------
+
+
+setup_osu_micro_benchmarks_git(){
+    cd $GIT_DOWNLOAD/osu-micro-benchmarks/osu-micro-benchmarks
+    CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME}-${NODE_NAME}/osu-micro-benchmarks \
+                     --enable-cuda \
+                     --with-cuda=$EBROOTCUDA \
+                     CC=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicc  \
+                     CXX=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicxx"
+    echo $CMD
+    eval $CMD
+    make clean ; make -j $MAKE_NP ; make install
+}
+
+# --------------------- BUILDS ---------------------
+
+if [ ! -d "$GIT_DOWNLOAD/osu-micro-benchmarks" ]; then
+    echo "Downloading OSU Micro Benchmarks in $GIT_DOWNLOAD/osu-micro-benchmarks" ; get_osu_micro_benchmarks_git
+fi
+
+if [ ! -d "$GIT_LOCAL/${BUILD_NAME}-${NODE_NAME}/osu-micro-benchmarks" ]; then
+    echo "Setting up OSU Micro Benchmarks in $GIT_LOCAL/osu-micro-benchmarks" ; setup_osu_micro_benchmarks_git
+fi

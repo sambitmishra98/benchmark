@@ -4,10 +4,9 @@ import numpy as np
 class ScriptMaker:
     def __init__(self, prefix = ''):
 
-        self.prefix = prefix
         self.simulation_wait_time = '6' # in hours
 
-    def generate_slurm_script(self, nodelist, steps, backend, caware, order, precision, nodes, ntasks , etype, elems, partition, gpu):
+    def generate_slurm_script(self, prefix, nodelist, steps, backend, caware, order, precision, nodes, ntasks , etype, elems, partition, gpu):
 
         # If the string nodelist contains the substring 'ac' then we are working on the ACES cluster
         # else if nodelist contains the substring 'fc' then we are working on the FASTER cluster
@@ -33,10 +32,10 @@ class ScriptMaker:
         }
 
         pvc_subscripts = {
-            'setup': f'setup_custom_libraries_venv_{mpi_lib} ; clinfo -l',
+            'setup': f' export MPIR_CVAR_ENABLE_GPU=0 ; clinfo -l',
             'run': f'xpumcli dump -d -1 -m 0,2,3,5,6,7,17,18 -i 10 > "log_gpus" &\n' \
                    f'xpumanager_pid=$!\n'\
-                   f'CMD="time srun --mpi=pmi2 -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
+                   f'CMD="time {srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
                    f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; \n'\
                    f'eval $CMD;\n'\
                    f'kill $xpumanager_pid'\
@@ -64,7 +63,7 @@ class ScriptMaker:
         elif partition == 'gpu' and gpu ==   't4': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
         else: raise ValueError(f"Partition {partition} not supported")
 
-        job_name = f"{self.prefix}partition{partition}_nodelist{nodelist}_" \
+        job_name = f"{prefix}partition{partition}_nodelist{nodelist}_" \
                    f"steps{steps}_backend{backend}_caware{caware}_order{order}_precision{precision}_nodes{nodes}_" \
                    f"tasks{ntasks}_{etype}{elems}"
 
@@ -126,19 +125,20 @@ echo -e "\\nSimulation ends\\n"
 
         return True
 
-    def make_scripts(self, npartition, nnodelist,  ngpu,
+    def make_scripts(self, nprefix, 
+                           npartition, nnodelist,  ngpu,
                            nsteps, nbackend, ncaware, norder, nprecision,
                            nnodes, ntasks_per_node, 
                            netype, nelements,):
 
         os.system("mkdir -p scripts")
         
-        for nodelist, steps, backend, caware, order, precision, nodes, tasks_per_node, etype, elements, partition, gpu in zip(nnodelist, nsteps, nbackend, ncaware, norder, nprecision, nnodes, ntasks_per_node, netype, nelements, npartition, ngpu):
+        for prefix, nodelist, steps, backend, caware, order, precision, nodes, tasks_per_node, etype, elements, partition, gpu in zip(nprefix,nnodelist, nsteps, nbackend, ncaware, norder, nprecision, nnodes, ntasks_per_node, netype, nelements, npartition, ngpu):
 
             tasks = nodes * tasks_per_node
 
-            script = self.generate_slurm_script(nodelist, steps, backend, caware, order, precision, nodes, tasks, etype, elements, partition, gpu)
-            output = f"scripts/{self.prefix}partition{partition}_gpu{gpu}_nodelist{nodelist}_steps{steps}_backend{backend}_caware{caware}_order{order}_precision{precision}_nodes{nodes}_tasks{tasks}_{etype}{elements}.sh"
+            script = self.generate_slurm_script(prefix, nodelist, steps, backend, caware, order, precision, nodes, tasks, etype, elements, partition, gpu)
+            output = f"scripts/{prefix}partition{partition}_gpu{gpu}_nodelist{nodelist}_steps{steps}_backend{backend}_caware{caware}_order{order}_precision{precision}_nodes{nodes}_tasks{tasks}_{etype}{elements}.sh"
             if not os.path.isfile(output):
                 self.write_script_to_file(script, output)
                 print(f"Script created: {output}")

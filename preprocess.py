@@ -7,7 +7,8 @@ from base.script_maker import ScriptMaker
 if __name__ == '__main__':
 
     c = pd.read_csv('configurations.csv', comment='#', 
-                    dtype={'nodelist':str, 
+                    dtype={'prefix':str,
+                           'nodelist':str, 
                            'nsteps':int, 'backend':str, 'caware':int, 'order':int, 'precision':str,
                            'nnodes':int, 'nparts-per-node':int, 
                            'etype':str, 'nelements':int, 
@@ -34,7 +35,8 @@ if __name__ == '__main__':
                                     c['etype'],)
 
     script_maker = ScriptMaker(prefix)
-    script_maker.make_scripts(c['partition'], c['nodelist'], c['gpu'],
+    script_maker.make_scripts(c['prefix'],
+                              c['partition'], c['nodelist'], c['gpu'],
                               c['nsteps'], c['backend'], c['caware'], c['order'], c['precision'],
                               c['nnodes'], c['nparts-per-node'], 
                               c['etype'], c['nelements'], 

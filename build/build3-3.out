@@ -1,0 +1,84 @@
+index, name, pci.bus, persistence_mode, serial, uuid, ecc.mode.current, ecc.mode.pending
+0, NVIDIA H100 PCIe, 0x0A, Enabled, 1650423013440, GPU-e0ddfde5-0a38-e4e2-0014-f9e7aecd3c60, Enabled, Enabled
+1, NVIDIA H100 PCIe, 0xAE, Enabled, 1650423013213, GPU-2a7b3b35-55ef-3f7e-e575-03b6ce99f212, Enabled, Enabled
+GPU 0: NVIDIA H100 PCIe (UUID: GPU-e0ddfde5-0a38-e4e2-0014-f9e7aecd3c60)
+GPU 1: NVIDIA H100 PCIe (UUID: GPU-2a7b3b35-55ef-3f7e-e575-03b6ce99f212)
+Platform #0: NVIDIA CUDA
+ +-- Device #0: NVIDIA H100 PCIe
+ `-- Device #1: NVIDIA H100 PCIe
+
+=================================================================
+Running on master node: ac036
+Time: Mon Jan 22 14:19:51 CST 2024
+Current directory: /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build3-venv-ac036
+JobID: 98704
+=================================================================
+Tasks=2,         nodes=1,          mpi_tasks_per_node=2          (OMP_NUM_THREADS=1)
+Easy CUDA version: 12.3.0
+[32mAdding gcc installation at /scratch/user/u.sm121949/.local/pkg/gcc/12.3.0 to PATH[0m
+[32mAdding build3-ac038/libffi installation at /scratch/user/u.sm121949/.local/pkg/build3-ac038/libffi/3.4.4 to PATH[0m
+[32mAdding build3-ac038/openssl installation at /scratch/user/u.sm121949/.local/pkg/build3-ac038/openssl/1.1.1w to PATH[0m
+[32mAdding curl installation at /scratch/user/u.sm121949/.local/pkg/curl/8.5.0 to PATH[0m
+[32mAdding git installation at /scratch/user/u.sm121949/.local/pkg/git/2.43.0 to PATH[0m
+[32mAdding build3-ac038/python installation at /scratch/user/u.sm121949/.local/pkg/build3-ac038/python/3.12.1 to PATH[0m
+[32mAdding build2-ac037/ucx installation at /scratch/user/u.sm121949/.local/pkg/build2-ac037/ucx/1.15.0 to PATH[0m
+[32mAdding build2-ac037/openmpi installation at /scratch/user/u.sm121949/.local/pkg/build2-ac037/openmpi/4.1.6 to PATH[0m
+
+/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/venv.build build3
+
+
+Location of venv: /scratch/user/u.sm121949/.local/venv/venv-build3
+Location of git: /scratch/user/u.sm121949/.local/git/Github_PyFR/pyfr-build3
+
+
+--------------------------------------------------
+
+
+ MPI test begins
+
+
+mpirun -n 2 python3 -c 'from mpi4py import MPI; print(MPI.COMM_WORLD.Get_rank())'
+
+1
+0
+
+ MPI test complete
+
+
+--------------------------------------------------
+
+
+--------------------------------------------------
+
+
+ CUDA-awareness test begins
+
+
+mpirun -n 2 python3 -c 'from mpi4py import MPI; import cupy; print(MPI.COMM_WORLD.Get_rank())'
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'cupy'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'cupy'
+--------------------------------------------------------------------------
+Primary job  terminated normally, but 1 process returned
+a non-zero exit code. Per user-direction, the job has been aborted.
+--------------------------------------------------------------------------
+--------------------------------------------------------------------------
+mpirun detected that one or more processes exited with non-zero status, thus causing
+the job to be terminated. The first process to do so was:
+
+  Process name: [[63807,1],1]
+  Exit code:    1
+--------------------------------------------------------------------------
+
+ CUDA-awareness test complete
+
+
+--------------------------------------------------
+
+
+Simulation ends
+

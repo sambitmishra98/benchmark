@@ -1,0 +1,84 @@
+Platform #0: NVIDIA CUDA
+ `-- Device #0: NVIDIA H100 PCIe
+
+=================================================================
+Running on master node: ac036
+Time: Mon Jan 22 15:06:17 CST 2024
+Current directory: /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build2-openmpi-ac037
+JobID: 100489
+=================================================================
+Tasks=2,         nodes=2,          mpi_tasks_per_node=1          (OMP_NUM_THREADS=1)
+Easy CUDA version: 12.3.0
+[32mAdding gcc installation at /scratch/user/u.sm121949/.local/pkg/gcc/12.3.0 to PATH[0m
+[32mAdding build2-ac037/ucx installation at /scratch/user/u.sm121949/.local/pkg/build2-ac037/ucx/1.15.0 to PATH[0m
+[32mAdding build2-ac037/openmpi installation at /scratch/user/u.sm121949/.local/pkg/build2-ac037/openmpi/4.1.6 to PATH[0m
+
+Running OSU microbenchmarks
+
+
+=================================================================
+
+
+ OSU Bandwidth
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+1                       0.30
+2                       0.59
+4                       1.18
+8                       2.31
+16                      4.26
+32                      7.95
+64                     15.15
+128                    30.57
+256                    49.75
+512                    77.59
+1024                   93.12
+2048                  103.97
+4096                  110.41
+8192                  114.68
+16384                 115.77
+32768                 116.81
+65536                2581.51
+131072               2814.37
+262144               3018.90
+524288               3122.36
+1048576              3289.62
+2097152              3227.94
+4194304              3273.90
+
+-----------------------------------------------------------------
+
+
+ OSU Bi-Directional Bandwidth
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+1                       0.58
+2                       1.15
+4                       2.30
+8                       4.51
+16                      8.62
+32                     18.72
+64                     42.86
+128                    71.86
+256                   109.95
+512                   163.38
+1024                  200.88
+2048                  216.22
+4096                  224.45
+8192                  229.14
+16384                 230.59
+32768                 231.61
+65536                2655.22
+131072               2839.88
+262144               3050.56
+524288               3226.48
+1048576              3433.33
+2097152              3346.92
+4194304              3359.73
+
+-----------------------------------------------------------------
+

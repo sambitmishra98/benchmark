@@ -63,7 +63,7 @@ def main():
     # only print the columns for the following
     # precision, nodes, tasks, etype, elements, mean-perf-per-GPU, rem-perf
 
-#    df = df[df['Elements'] == 128]
+#    df = df[df['partition'] == 'pvc']
 
     # Print everything
     print(df[['backend', 'CAware', 'Tasks', 
