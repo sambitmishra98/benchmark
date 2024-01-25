@@ -15,9 +15,6 @@
 #SBATCH --cpus-per-gpu=8
 #SBATCH --nodelist=ac038
 
-mkdir -p /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build3-python-ac038
-cd /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build3-python-ac038
-
 # ------------------------------------------------------------------------------
 # Check environment
 # ------------------------------------------------------------------------------
