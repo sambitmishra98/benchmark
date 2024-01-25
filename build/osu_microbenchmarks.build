@@ -17,12 +17,23 @@ get_osu_micro_benchmarks_git(){
 
 
 setup_osu_micro_benchmarks_git(){
-    cd $GIT_DOWNLOAD/osu-micro-benchmarks/osu-micro-benchmarks
+    cd $GIT_DOWNLOAD/osu-micro-benchmarks/
+#    CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME}-${NODE_NAME}/osu-micro-benchmarks \
+#                     --enable-cuda \
+#                     --with-cuda=$EBROOTCUDA \
+#                     CC=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicc  \
+#                     CXX=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicxx"
+#
+#    CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME}-${NODE_NAME}/osu-micro-benchmarks \
+#                     CC=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicc  \
+#                     CXX=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicxx"
+#
     CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME}-${NODE_NAME}/osu-micro-benchmarks \
                      --enable-cuda \
                      --with-cuda=$EBROOTCUDA \
                      CC=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicc  \
                      CXX=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicxx"
+
     echo $CMD
     eval $CMD
     make clean ; make -j $MAKE_NP ; make install

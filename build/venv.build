@@ -1,6 +1,8 @@
 BUILD_NAME=$1
+BUILD_TAG=$2
 
-export VENV_NAME="venv-${BUILD_NAME}"
+export VENV_NAME="venv-${BUILD_NAME}-${BUILD_TAG}"
+export PYFR_NAME="pyfr-${BUILD_NAME}-${BUILD_TAG}"
 
 setup_pyfr_venv_prerequisites(){
 
@@ -15,8 +17,8 @@ setup_pyfr_venv_prerequisites(){
 }
 
 setup_pyfr_venv_base(){
-    git clone https://github.com/sambitmishra98/PyFR.git $GIT_LOCAL/Github_PyFR/pyfr-$BUILD_NAME
-    cd $GIT_LOCAL/Github_PyFR/pyfr-$BUILD_NAME
+    git clone https://github.com/sambitmishra98/PyFR.git $GIT_LOCAL/Github_PyFR/${PYFR_NAME}
+    cd $GIT_LOCAL/Github_PyFR/${PYFR_NAME}
     python3 setup.py develop
 }
 
@@ -36,7 +38,7 @@ test_pyfr_venv_base(){
 }
 
 setup_pyfr_venv_benchmarking(){
-    cd $GIT_LOCAL/Github_PyFR/pyfr-$BUILD_NAME
+    cd $GIT_LOCAL/Github_PyFR/${PYFR_NAME}
     git checkout benchmark
     python3 setup.py develop
     pip3 install pandas matplotlib seaborn
@@ -51,4 +53,4 @@ else
     source $VENV_LOCAL/$VENV_NAME/bin/activate
 fi
 
-echo -e "\nLocation of venv: $VENV_LOCAL/$VENV_NAME\nLocation of git: $GIT_LOCAL/Github_PyFR/pyfr-$BUILD_NAME\n"
+echo -e "\nLocation of venv: $VENV_LOCAL/$VENV_NAME\nLocation of git: $GIT_LOCAL/Github_PyFR/${PYFR_NAME}\n"

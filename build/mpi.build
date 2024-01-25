@@ -1,0 +1,174 @@
+BUILD_NAME=$1
+NODE_NAME=$2
+BUILD_UCX_VER=$3
+BUILD_OPENMPI_VER=$4
+
+BUILD_CLUSTER=$SLURM_SUBMIT_HOST
+BUILD_PARTITION=$SLURM_JOB_PARTITION
+BUILD_NP=$SLURM_NTASKS
+
+echo -e "\n================================================================="
+echo -e "BUILD_NAME: $BUILD_NAME"
+echo -e "NODE_NAME: $NODE_NAME"
+echo -e "BUILD_UCX_VER: $BUILD_UCX_VER"
+echo -e "BUILD_OPENMPI_VER: $BUILD_OPENMPI_VER"
+echo -e "BUILD_CLUSTER: $BUILD_CLUSTER"
+echo -e "BUILD_PARTITION: $BUILD_PARTITION"
+echo -e "BUILD_NP: $BUILD_NP"
+echo -e "=================================================================\n"
+
+add_installation_to_path() {
+    local name=$1
+    local version=$2
+    local install_root=$3
+    local install_dir="${install_root}/${name}/${version}"
+
+    # if the base directory does not exist, then echo a warning and return
+    if [ ! -d "${install_dir}" ]; then
+        echo -e "\e[31mERROR IN PATH ADDITION: ${install_dir} DOES NOT EXIST !!!!\e[0m"; return
+    else
+        echo -e "\e[32mAdding ${name} installation at ${install_dir} to PATH\e[0m"
+
+        [ -d "${install_dir}/bin"           ] && export            PATH="${install_dir}/bin:$PATH"
+        [ -d "${install_dir}/include"       ] && export           CPATH="${install_dir}/include:$CPATH"
+        [ -d "${install_dir}/include"       ] && export          CPPATH="${install_dir}/include:$CPPATH"
+        [ -d "${install_dir}/lib"           ] && export          LDPATH="${install_dir}/lib:$LDPATH"
+        [ -d "${install_dir}/lib64"         ] && export          LDPATH="${install_dir}/lib64:$LDPATH"
+        [ -d "${install_dir}/lib"           ] && export    LIBRARY_PATH="${install_dir}/lib:$LIBRARY_PATH"
+        [ -d "${install_dir}/lib64"         ] && export    LIBRARY_PATH="${install_dir}/lib64:$LIBRARY_PATH"
+        [ -d "${install_dir}/lib"           ] && export LD_LIBRARY_PATH="${install_dir}/lib:$LD_LIBRARY_PATH"
+        [ -d "${install_dir}/lib64"         ] && export LD_LIBRARY_PATH="${install_dir}/lib64:$LD_LIBRARY_PATH"
+        [ -d "${install_dir}/lib/pkgconfig" ] && export PKG_CONFIG_PATH="${install_dir}/lib/pkgconfig:$PKG_CONFIG_PATH"
+    fi }
+
+# --------------------- GETS ---------------------
+
+get_ucx_pkg(){     
+    mkdir -p $PKG_DOWNLOAD/ucx/$BUILD_UCX_VER ; cd $PKG_DOWNLOAD/ucx/$BUILD_UCX_VER
+    wget https://github.com/openucx/ucx/releases/download/v$BUILD_UCX_VER/ucx-$BUILD_UCX_VER.tar.gz
+    tar -xf ucx-$BUILD_UCX_VER.tar.gz ; rm ucx-$BUILD_UCX_VER.tar.gz
+}
+
+get_openmpi_pkg(){
+    mkdir -p $PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER ; cd $PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER
+    wget https://download.open-mpi.org/release/open-mpi/v5.0/openmpi-$BUILD_OPENMPI_VER.tar.gz
+    tar -xf openmpi-$BUILD_OPENMPI_VER.tar.gz ; rm openmpi-$BUILD_OPENMPI_VER.tar.gz
+}
+
+get_mpich_pkg(){
+    mkdir -p $PKG_DOWNLOAD/mpich/$BUILD_MPICH_VER ; cd $PKG_DOWNLOAD/mpich/$BUILD_MPICH_VER
+    wget https://www.mpich.org/static/downloads/$BUILD_MPICH_VER/mpich-$BUILD_MPICH_VER.tar.gz
+    tar -xf mpich-$BUILD_MPICH_VER.tar.gz ; rm mpich-$BUILD_MPICH_VER.tar.gz
+}
+
+# --------------------- SETUPS ---------------------
+
+setup_ucx_pkg() {
+    cd $PKG_DOWNLOAD/ucx/$BUILD_UCX_VER/ucx-$BUILD_UCX_VER
+
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER \
+                     --enable-shared \
+                     --enable-devel-headers \
+                     --enable-cma \
+                     --enable-mt \
+                     --with-rc \
+                     --with-dc \
+                     --with-ib-hw-tm \
+                     --with-mlx5-dv \
+                     --without-verbs"
+
+    if [ "$BUILD_CLUSTER" == "spitfire" ]; then
+        if [ "$BUILD_PARTITION" == "amd" ]; then
+            CMD="$CMD --with-rocm=/opt/rocm-6.0.0/"
+        elif [ "$BUILD_PARTITION" == "all" ]; then
+            CMD="$CMD --with-cuda=/usr/local/cuda-12.2/"
+        fi
+    elif [ "$BUILD_CLUSTER" == "faster" ] || { [ "$BUILD_CLUSTER" == "aces" ] && [ "$BUILD_PARTITION" == "gpu" ]; }; then
+        CMD="$CMD --with-cuda=$EBROOTCUDA"
+    fi
+    
+    echo $CMD
+    eval $CMD
+    make clean
+    make -j $BUILD_NP
+    make install
+}
+
+setup_openmpi_pkg() {
+    cd $PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER/openmpi-$BUILD_OPENMPI_VER
+
+    # Common configuration options
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER} \
+                     --enable-shared \
+                     --with-ucx=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER \
+                     --without-verbs \
+                     --without-ofi"
+
+    # Conditionally set the CUDA or ROCm paths
+    if [ "$BUILD_PARTITION" == "amd" ]; then
+        CMD="$CMD --with-rocm=/opt/rocm-6.0.0/"
+    elif [ "$BUILD_PARTITION" == "all" ]; then
+        CMD="$CMD --with-cuda=/usr/local/cuda-12.2/ \
+                   --with-cuda-libdir=/usr/local/cuda-12.2/lib64/stubs/"
+    elif [ -n "$EBROOTCUDA" ]; then
+        CMD="$CMD --with-cuda=$EBROOTCUDA"
+    fi
+
+    echo $CMD
+    eval $CMD
+    make clean
+    make -j $BUILD_NP
+    make install
+}
+
+setup_mpich_pkg() {
+    cd $PKG_DOWNLOAD/mpich/$BUILD_MPICH_VER/mpich-$BUILD_MPICH_VER
+
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/${BUILD_MPICH_VER} \
+                 --enable-shared \
+                 --with-device=ch4:ucx \
+                 --with-pm=hydra \
+                 --with-slurm \
+                 --enable-fast=all,O3 \
+                 --enable-g=none \
+                 --enable-romio"
+        #        --with-ucx=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER \
+        #        --without-libfabric \
+        #        --with-ucx"
+        #        --without-verbs \
+        #        --without-ofi\
+        #        --without-libfabric"
+
+    echo $CMD
+    eval $CMD
+    make clean
+    make -j $BUILD_NP
+    make install
+}
+
+if [ ! -d "$PKG_DOWNLOAD/mpich/$BUILD_mpich_VER" ]; then
+    echo "Downloading MPICH" ; get_mpich_pkg
+fi
+
+if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/$BUILD_MPICH_VER" ]; then
+    echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
+fi
+
+# if [ ! -d "$PKG_DOWNLOAD/ucx/$BUILD_UCX_VER" ]; then
+#     echo "Downloading UCX" ; get_ucx_pkg
+# fi
+# 
+# if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ]; then
+#     echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ; setup_ucx_pkg
+# fi
+# 
+# add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/ucx      $BUILD_UCX_VER     $PKG_LOCAL
+# 
+# if [ ! -d "$PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER" ]; then
+#     echo "Downloading OpenMPI" ; get_openmpi_pkg
+# fi
+# 
+# if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ]; then
+#     echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
+# fi
+# 

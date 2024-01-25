@@ -1,0 +1,402 @@
+Tue Jan 23 12:20:37 2024       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.104.12             Driver Version: 535.104.12   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  Tesla V100-SXM2-32GB           Off | 00000000:18:00.0 Off |                  Off |
+| N/A   22C    P0              40W / 300W |      0MiB / 32768MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+|   1  Tesla V100-SXM2-32GB           Off | 00000000:3B:00.0 Off |                  Off |
+| N/A   22C    P0              40W / 300W |      0MiB / 32768MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+|   2  Tesla V100-SXM2-32GB           Off | 00000000:86:00.0 Off |                  Off |
+| N/A   21C    P0              39W / 300W |      0MiB / 32768MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+|   3  Tesla V100-SXM2-32GB           Off | 00000000:AF:00.0 Off |                  Off |
+| N/A   24C    P0              39W / 300W |      0MiB / 32768MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+
+=================================================================
+Running on master node: spitfire-ng11.spitfire.engr.tamu.edu
+Time: Tue Jan 23 12:20:37 CST 2024
+Current directory: /mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build
+JobID: 1575
+=================================================================
+Tasks=8,            nodes=2,             mpi_tasks_per_node=4             (OMP_NUM_THREADS=)
+[32mAdding cuda-12.2 installation at /usr/local//cuda-12.2/ to PATH[0m
+[32mAdding gcc installation at /mnt/share/sambit98/.local-spitfire/pkg/gcc/12.3.0 to PATH[0m
+
+/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build/openmpi.build cuda ng11 1.15.0 5.0.1
+
+/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build/openmpi.build: line 6: export: `=24': not a valid identifier
+[32mAdding cuda-ng11/ucx installation at /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/ucx/1.15.0 to PATH[0m
+[32mAdding cuda-ng11/ucx installation at /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/ucx/1.15.0 to PATH[0m
+[32mAdding cuda-ng11/openmpi installation at /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1 to PATH[0m
+/mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpirun
+                 Package: Open MPI sambit98@spitfire-ng11 Distribution
+                Open MPI: 5.0.1
+  Open MPI repo revision: v5.0.1
+   Open MPI release date: Dec 20, 2023
+                 MPI API: 3.1.0
+            Ident string: 5.0.1
+                  Prefix: /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1
+ Configured architecture: x86_64-pc-linux-gnu
+           Configured by: sambit98
+           Configured on: Tue Jan 23 17:56:01 UTC 2024
+          Configure host: spitfire-ng11
+  Configure command line: '--prefix=/mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1' '--enable-shared' '--with-cuda=/usr/local/cuda-12.2/' '--with-cuda-libdir=/usr/local/cuda-12.2/lib64/stubs/' '--with-ucx=/mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/ucx/1.15.0' '--without-verbs' '--without-ofi'
+                Built by: sambit98
+                Built on: Tue Jan 23 18:06:48 UTC 2024
+              Built host: spitfire-ng11
+              C bindings: yes
+             Fort mpif.h: yes (all)
+            Fort use mpi: yes (full: ignore TKR)
+       Fort use mpi size: deprecated-ompi-info-value
+        Fort use mpi_f08: yes
+ Fort mpi_f08 compliance: The mpi_f08 module is available, but due to limitations in the gfortran compiler and/or Open MPI, does not support the following: array subsections, direct passthru (where possible) to underlying Open MPI's C functionality
+  Fort mpi_f08 subarrays: no
+           Java bindings: no
+  Wrapper compiler rpath: runpath
+              C compiler: gcc
+     C compiler absolute: /usr/bin/gcc
+  C compiler family name: GNU
+      C compiler version: 12.3.0
+            C++ compiler: g++
+   C++ compiler absolute: /usr/bin/g++
+           Fort compiler: gfortran
+       Fort compiler abs: /usr/bin/gfortran
+         Fort ignore TKR: yes (!GCC$ ATTRIBUTES NO_ARG_CHECK ::)
+   Fort 08 assumed shape: yes
+      Fort optional args: yes
+          Fort INTERFACE: yes
+    Fort ISO_FORTRAN_ENV: yes
+       Fort STORAGE_SIZE: yes
+      Fort BIND(C) (all): yes
+      Fort ISO_C_BINDING: yes
+ Fort SUBROUTINE BIND(C): yes
+       Fort TYPE,BIND(C): yes
+ Fort T,BIND(C,name="a"): yes
+            Fort PRIVATE: yes
+           Fort ABSTRACT: yes
+       Fort ASYNCHRONOUS: yes
+          Fort PROCEDURE: yes
+         Fort USE...ONLY: yes
+           Fort C_FUNLOC: yes
+ Fort f08 using wrappers: yes
+         Fort MPI_SIZEOF: yes
+             C profiling: yes
+   Fort mpif.h profiling: yes
+  Fort use mpi profiling: yes
+   Fort use mpi_f08 prof: yes
+          Thread support: posix (MPI_THREAD_MULTIPLE: yes, OPAL support: yes, OMPI progress: no, Event lib: yes)
+           Sparse Groups: no
+  Internal debug support: no
+  MPI interface warnings: yes
+     MPI parameter check: runtime
+Memory profiling support: no
+Memory debugging support: no
+              dl support: yes
+   Heterogeneous support: no
+       MPI_WTIME support: native
+     Symbol vis. support: yes
+   Host topology support: yes
+            IPv6 support: no
+          MPI extensions: affinity, cuda, ftmpi, rocm, shortfloat
+ Fault Tolerance support: yes
+          FT MPI support: yes
+  MPI_MAX_PROCESSOR_NAME: 256
+    MPI_MAX_ERROR_STRING: 256
+     MPI_MAX_OBJECT_NAME: 64
+        MPI_MAX_INFO_KEY: 36
+        MPI_MAX_INFO_VAL: 256
+       MPI_MAX_PORT_NAME: 1024
+  MPI_MAX_DATAREP_STRING: 128
+         MCA accelerator: null (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+         MCA accelerator: cuda (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+           MCA allocator: basic (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+           MCA allocator: bucket (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+           MCA backtrace: execinfo (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                 MCA btl: self (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+                 MCA btl: sm (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+                 MCA btl: smcuda (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+                 MCA btl: tcp (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+                 MCA btl: uct (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+                  MCA dl: dlopen (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+                  MCA if: linux_ipv6 (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                  MCA if: posix_ipv4 (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+         MCA installdirs: env (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+         MCA installdirs: config (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+              MCA memory: patcher (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA mpool: hugepage (MCA v2.1.0, API v3.1.0, Component v5.0.1)
+             MCA patcher: overwrite (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+              MCA rcache: grdma (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+              MCA rcache: gpusm (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+              MCA rcache: rgpusm (MCA v2.1.0, API v3.3.0, Component v5.0.1)
+           MCA reachable: weighted (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA shmem: mmap (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA shmem: posix (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA shmem: sysv (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                MCA smsc: cma (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+             MCA threads: pthreads (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+               MCA timer: linux (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                 MCA bml: r2 (MCA v2.1.0, API v2.1.0, Component v5.0.1)
+                MCA coll: adapt (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: basic (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: han (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: inter (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: libnbc (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: self (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: sync (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: tuned (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: cuda (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: ftagree (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: monitoring (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA coll: sm (MCA v2.1.0, API v2.4.0, Component v5.0.1)
+                MCA fbtl: posix (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA fcoll: dynamic (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA fcoll: dynamic_gen2 (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA fcoll: individual (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+               MCA fcoll: vulcan (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                  MCA fs: ufs (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                MCA hook: comm_method (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+                  MCA io: ompio (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                  MCA io: romio341 (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                  MCA op: avx (MCA v2.1.0, API v1.0.0, Component v5.0.1)
+                 MCA osc: sm (MCA v2.1.0, API v3.0.0, Component v5.0.1)
+                 MCA osc: monitoring (MCA v2.1.0, API v3.0.0, Component v5.0.1)
+                 MCA osc: rdma (MCA v2.1.0, API v3.0.0, Component v5.0.1)
+                 MCA osc: ucx (MCA v2.1.0, API v3.0.0, Component v5.0.1)
+                MCA part: persist (MCA v2.1.0, API v4.0.0, Component v5.0.1)
+                 MCA pml: cm (MCA v2.1.0, API v2.1.0, Component v5.0.1)
+                 MCA pml: monitoring (MCA v2.1.0, API v2.1.0, Component v5.0.1)
+                 MCA pml: ob1 (MCA v2.1.0, API v2.1.0, Component v5.0.1)
+                 MCA pml: ucx (MCA v2.1.0, API v2.1.0, Component v5.0.1)
+                 MCA pml: v (MCA v2.1.0, API v2.1.0, Component v5.0.1)
+            MCA sharedfp: individual (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+            MCA sharedfp: lockedfile (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+            MCA sharedfp: sm (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+                MCA topo: basic (MCA v2.1.0, API v2.2.0, Component v5.0.1)
+                MCA topo: treematch (MCA v2.1.0, API v2.2.0, Component v5.0.1)
+           MCA vprotocol: pessimist (MCA v2.1.0, API v2.0.0, Component v5.0.1)
+
+/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build cuda ng11 5.0.1
+
+Setting up OSU Micro Benchmarks in /mnt/share/sambit98/.local-spitfire/git/osu-micro-benchmarks
+./configure --prefix=/mnt/share/sambit98/.local-spitfire/git/cuda-ng11/osu-micro-benchmarks --enable-cuda --with-cuda= CC=/mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc CXX=/mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /usr/bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether make supports nested variables... yes
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking how to print strings... printf
+checking for style of include used by make... GNU
+checking for gcc... /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc accepts -g... yes
+checking for /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc option to accept ISO C89... none needed
+checking whether /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc understands -c and -o together... yes
+checking dependency style of /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc... gcc3
+checking for a sed that does not truncate output... /usr/bin/sed
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for fgrep... /usr/bin/grep -F
+checking for ld used by /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 1572864
+checking how to convert x86_64-unknown-linux-gnu file names to x86_64-unknown-linux-gnu format... func_convert_file_noop
+checking how to convert x86_64-unknown-linux-gnu file names to toolchain format... func_convert_file_noop
+checking for /usr/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for dlltool... no
+checking how to associate runtime and link libraries... printf %s\n
+checking for ar... ar
+checking for archiver @FILE support... @
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc object... ok
+checking for sysroot... no
+checking for a working dd... /usr/bin/dd
+checking how to truncate binary pipes... /usr/bin/dd bs=4096 count=1
+checking for mt... no
+checking if : is a manifest tool... no
+checking how to run the C preprocessor... /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc supports -fno-rtti -fno-exceptions... no
+checking for /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc option to produce PIC... -fPIC -DPIC
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc PIC flag -fPIC -DPIC works... yes
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc static flag -static works... no
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc supports -c -o file.o... yes
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc supports -c -o file.o... (cached) yes
+checking whether the /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking whether we are using the GNU C compiler... (cached) yes
+checking whether /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc accepts -g... (cached) yes
+checking for /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc option to accept ISO C89... (cached) none needed
+checking whether /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc understands -c and -o together... (cached) yes
+checking dependency style of /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicc... (cached) gcc3
+checking whether we are using the GNU C++ compiler... yes
+checking whether /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx accepts -g... yes
+checking dependency style of /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx... gcc3
+checking how to run the C++ preprocessor... /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx -E
+checking for ld used by /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx... /usr/bin/ld -m elf_x86_64
+checking if the linker (/usr/bin/ld -m elf_x86_64) is GNU ld... yes
+checking whether the /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking for /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx option to produce PIC... -fPIC -DPIC
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx PIC flag -fPIC -DPIC works... yes
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx static flag -static works... no
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx supports -c -o file.o... yes
+checking if /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx supports -c -o file.o... (cached) yes
+checking whether the /mnt/share/sambit98/.local-spitfire/pkg/cuda-ng11/openmpi/5.0.1/bin/mpicxx linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking dynamic linker characteristics... (cached) GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking for library containing sqrt... -lm
+checking for library containing pthread_create... none required
+checking for stdlib.h... (cached) yes
+checking for string.h... (cached) yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking for unistd.h... (cached) yes
+checking for inline... inline
+checking for getpagesize... yes
+checking for gettimeofday... yes
+checking for memset... yes
+checking for sqrt... yes
+checking for MPI_Init... yes
+checking for MPI_Accumulate... yes
+checking for MPI_Get_accumulate... yes
+checking for shmem_barrier_all... no
+checking for upc_memput... no
+checking whether upcxx_alltoall is declared... no
+checking for library containing cuPointerGetAttribute... -lcuda
+checking for library containing cudaFree... -lcudart
+checking cuda.h usability... yes
+checking cuda.h presence... yes
+checking for cuda.h... yes
+checking that generated files are newer than configure... done
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating mpi/Makefile
+config.status: creating mpi/pt2pt/Makefile
+config.status: creating mpi/startup/Makefile
+config.status: creating mpi/one-sided/Makefile
+config.status: creating mpi/collective/Makefile
+config.status: creating openshmem/Makefile
+config.status: creating upc/Makefile
+config.status: creating upcxx/Makefile
+config.status: executing depfiles commands
+config.status: executing libtool commands
+CDPATH="${ZSH_VERSION+.}:" && cd . && /bin/sh /mnt/share/sambit98/.downloads/git/osu-micro-benchmarks/missing aclocal-1.15 
+/mnt/share/sambit98/.downloads/git/osu-micro-benchmarks/missing: line 81: aclocal-1.15: command not found
+WARNING: 'aclocal-1.15' is missing on your system.
+         You should only need it if you modified 'acinclude.m4' or
+         'configure.ac' or m4 files included by 'configure.ac'.
+         The 'aclocal' program is part of the GNU Automake package:
+         <http://www.gnu.org/software/automake>
+         It also requires GNU Autoconf, GNU m4 and Perl in order to run:
+         <http://www.gnu.org/software/autoconf>
+         <http://www.gnu.org/software/m4/>
+         <http://www.perl.org/>
+make: *** [Makefile:398: aclocal.m4] Error 127
+CDPATH="${ZSH_VERSION+.}:" && cd . && /bin/sh /mnt/share/sambit98/.downloads/git/osu-micro-benchmarks/missing aclocal-1.15 
+/mnt/share/sambit98/.downloads/git/osu-micro-benchmarks/missing: line 81: aclocal-1.15: command not found
+WARNING: 'aclocal-1.15' is missing on your system.
+         You should only need it if you modified 'acinclude.m4' or
+         'configure.ac' or m4 files included by 'configure.ac'.
+         The 'aclocal' program is part of the GNU Automake package:
+         <http://www.gnu.org/software/automake>
+         It also requires GNU Autoconf, GNU m4 and Perl in order to run:
+         <http://www.gnu.org/software/autoconf>
+         <http://www.gnu.org/software/m4/>
+         <http://www.perl.org/>
+make: *** [Makefile:398: aclocal.m4] Error 127
+CDPATH="${ZSH_VERSION+.}:" && cd . && /bin/sh /mnt/share/sambit98/.downloads/git/osu-micro-benchmarks/missing aclocal-1.15 
+/mnt/share/sambit98/.downloads/git/osu-micro-benchmarks/missing: line 81: aclocal-1.15: command not found
+WARNING: 'aclocal-1.15' is missing on your system.
+         You should only need it if you modified 'acinclude.m4' or
+         'configure.ac' or m4 files included by 'configure.ac'.
+         The 'aclocal' program is part of the GNU Automake package:
+         <http://www.gnu.org/software/automake>
+         It also requires GNU Autoconf, GNU m4 and Perl in order to run:
+         <http://www.gnu.org/software/autoconf>
+         <http://www.gnu.org/software/m4/>
+         <http://www.perl.org/>
+make: *** [Makefile:398: aclocal.m4] Error 127
+
+Running OSU microbenchmarks
+
+
+=================================================================
+
+
+ OSU Bandwidth
+
+--------------------------------------------------------------------------
+prterun was unable to launch the specified application as it lacked
+permissions to execute an executable:
+
+Executable: /mnt/share/sambit98/.local-spitfire/git/cuda-ng11/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw Node: spitfire-ng11
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+ 
+-----------------------------------------------------------------
+
+
+ OSU Bi-Directional Bandwidth
+
+--------------------------------------------------------------------------
+prterun was unable to launch the specified application as it lacked
+permissions to execute an executable:
+
+Executable: /mnt/share/sambit98/.local-spitfire/git/cuda-ng11/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw Node: spitfire-ng11
+
+while attempting to start process rank 0.
+--------------------------------------------------------------------------
+ 
+-----------------------------------------------------------------
+

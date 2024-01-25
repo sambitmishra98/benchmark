@@ -1,0 +1,70 @@
+
+
+====================================== ROCm System Management Interface ======================================
+================================================ Concise Info ================================================
+Device  [Model : Revision]    Temp    Power  Partitions      SCLK    MCLK     Fan  Perf  PwrCap  VRAM%  GPU%  
+[3m        Name (20 chars)       (Edge)  (Avg)  (Mem, Compute)                                                   [0m
+==============================================================================================================
+0       [0x0c34 : 0x01]       20.0°C  34.0W  N/A, N/A        300Mhz  1200Mhz  0%   auto  290.0W    0%   0%    
+        Arcturus GL-XL [Inst                                                                                  
+1       [0x0c34 : 0x01]       20.0°C  34.0W  N/A, N/A        300Mhz  1200Mhz  0%   auto  290.0W    0%   0%    
+        Arcturus GL-XL [Inst                                                                                  
+2       [0x0c34 : 0x01]       20.0°C  34.0W  N/A, N/A        300Mhz  1200Mhz  0%   auto  290.0W    0%   0%    
+        Arcturus GL-XL [Inst                                                                                  
+==============================================================================================================
+============================================ End of ROCm SMI Log =============================================
+
+=================================================================
+Running on master node: spitfire-ng23.spitfire.engr.tamu.edu
+Time: Tue Jan 23 10:27:39 CST 2024
+Current directory: /mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build
+JobID: 1535
+=================================================================
+Tasks=9,            nodes=3,             mpi_tasks_per_node=3             (OMP_NUM_THREADS=)
+Virtual environments:
+	 
+	 
+	  
+	 
+	 
+/var/spool/slurmdspool/job01535/slurm_script: line 62: add_to_path_cuda_12_3_0: command not found
+[32mAdding gcc installation at /mnt/share/sambit98/.local-spitfire/pkg/gcc/12.3.0 to PATH[0m
+[32mAdding build3-ac038/libffi installation at /mnt/share/sambit98/.local-spitfire/pkg/build3-ac038/libffi/3.4.4 to PATH[0m
+[32mAdding build3-ac038/openssl installation at /mnt/share/sambit98/.local-spitfire/pkg/build3-ac038/openssl/1.1.1w to PATH[0m
+[32mAdding build3-ac038/python installation at /mnt/share/sambit98/.local-spitfire/pkg/build3-ac038/python/3.12.1 to PATH[0m
+[32mAdding hip-ac037/ucx installation at /mnt/share/sambit98/.local-spitfire/pkg/hip-ac037/ucx/1.15.0 to PATH[0m
+[32mAdding hip-ac037/openmpi installation at /mnt/share/sambit98/.local-spitfire/pkg/hip-ac037/openmpi/5.0.1 to PATH[0m
+
+/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build/venv.build hip ac
+
+
+Location of venv: /mnt/share/sambit98/.local-spitfire/venv/venv-hip-ac
+Location of git: /mnt/share/sambit98/.local-spitfire/git/Github_PyFR/pyfr-hip-ac
+
+
+--------------------------------------------------
+
+
+ MPI test begins
+
+
+mpirun -n 9 python3 -c 'from mpi4py import MPI; print(MPI.COMM_WORLD.Get_rank())'
+
+8
+6
+7
+0
+1
+2
+5
+4
+3
+
+ MPI test complete
+
+
+--------------------------------------------------
+
+
+Simulation ends
+

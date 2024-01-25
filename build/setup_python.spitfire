@@ -1,32 +1,33 @@
 #!/bin/bash
-#SBATCH --job-name="build2-script"
+#SBATCH --job-name="ompi-script"
 #SBATCH --nodes=1
 ##SBATCH --exclusive
-#SBATCH --reservation=benchmarking
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=openmpi-build-test_1node_2gpu.out
+#SBATCH --output=python3-build-hip.out
 #SBATCH --no-requeue
-#SBATCH --partition=gpu
-#SBATCH --ntasks=2
-#SBATCH --gres=gpu:h100:2
+#SBATCH --partition=amd
+#SBATCH --ntasks=3
+#SBATCH --gres=gpu:3
 #SBATCH --cpus-per-gpu=8
-#SBATCH --nodelist=ac036
-
-mkdir -p /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build2-openmpi-ac037
-cd /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build2-openmpi-ac037
 
 # ------------------------------------------------------------------------------
 # Check environment
 # ------------------------------------------------------------------------------
 
-/sw/local/bin/query_gpu.sh
+. /etc/profile.d/modules.sh
+module purge
 
-nvidia-smi -L ; clinfo -l
+rocm-smi
+
 source ~/.bashrc
 echo -e "\n================================================================="
+
+export BUILD_NAME="build3"
+export BUILD_TAG="ac038"
+export BUILD_PATH="/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build"
 
 # ------------------------------------------------------------------------------
 # Print SLURM settings
@@ -51,37 +52,20 @@ echo -e "Tasks=${SLURM_NTASKS},\
 
 setup_base
 export_all_versions
-add_to_path_cuda_12_3_0
 add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
 
 # ------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/openmpi.build build2 ac037 1.15.0 4.1.6"
+CMD="${BUILD_PATH}/python.build ${BUILD_NAME} ${BUILD_TAG} ${BUILD_LIBFFI_VER} ${BUILD_OPENSSL_VER} ${BUILD_PYTHON_VER}"
 echo -e "\n$CMD\n"
 eval $CMD
 
-add_installation_to_path build2-ac037/ucx     1.15.0 $PKG_LOCAL
-add_installation_to_path build2-ac037/openmpi 4.1.6  $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/libffi  ${BUILD_LIBFFI_VER}  $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/openssl ${BUILD_OPENSSL_VER} $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/python  ${BUILD_PYTHON_VER}  $PKG_LOCAL
 
+which python3
 
-# ------------------------------------------------------------------------------
-# Test build with osu_microbenchmarks and other CUDA benchmarks
-# ------------------------------------------------------------------------------
-
-CMD="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build build2 ac037 4.1.6"
-echo -e "\n$CMD\n"
-eval $CMD
-
-which mpirun
-
-# RUN OSU MICROBENCHMARKS
-echo -e "\nRunning OSU microbenchmarks\n"
-echo -e "\n=================================================================\n"
-echo -e "\n OSU Bandwidth\n"
-mpirun -np 2 $GIT_LOCAL/build2-ac037/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw
-echo -e "\n-----------------------------------------------------------------\n"
-echo -e "\n OSU Bi-Directional Bandwidth\n"
-mpirun -np 2 $GIT_LOCAL/build2-ac037/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw
-echo -e "\n-----------------------------------------------------------------\n"
+echo -e "\nSimulation ends\n"

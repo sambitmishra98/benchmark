@@ -32,9 +32,6 @@ add_installation_to_path() {
 
 
 # --------------------- GETS ---------------------
-
-
-
 get_libffi_pkg(){
     mkdir -p $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER
     echo "libffi version $BUILD_LIBFFI_VER downloaded at $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER"
@@ -42,9 +39,6 @@ get_libffi_pkg(){
     tar -xvf $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER/libffi-$BUILD_LIBFFI_VER.tar.gz -C $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER
     rm $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER/libffi-$BUILD_LIBFFI_VER.tar.gz
 }
-
-
-
 get_openssl_pkg(){
     mkdir -p $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER
     echo "OpenSSL version $BUILD_OPENSSL_VER downloaded at $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER"
@@ -52,7 +46,6 @@ get_openssl_pkg(){
     tar -xf $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER/openssl-$BUILD_OPENSSL_VER.tar.gz -C $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER
     rm $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER/openssl-$BUILD_OPENSSL_VER.tar.gz
 }
-
 get_python_pkg(){
     mkdir -p $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER ; cd $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER
     echo "Python version $BUILD_PYTHON_VER downloaded at $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER"
@@ -60,8 +53,6 @@ get_python_pkg(){
     tar -xf $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER/Python-$BUILD_PYTHON_VER.tgz -C $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER ; 
     rm $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER/Python-$BUILD_PYTHON_VER.tgz
 }
-
-
 # --------------------- SETUPS ---------------------
 
 setup_libffi_pkg(){
@@ -92,34 +83,30 @@ setup_python_pkg(){
     make install
 }
 
-
 #LIBFFI
-if [ ! -d "$PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER" ]; then
-    echo "Downloading libffi in $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER" ; get_libffi_pkg
-fi
-
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/libffi/$BUILD_LIBFFI_VER" ]; then
-    echo "Setting up libffi in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/libffi/$BUILD_LIBFFI_VER" ; setup_libffi_pkg
-fi
+    if [ ! -d "$PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER" ]; then
+        echo "Downloading libffi in $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER" ; get_libffi_pkg
+    fi
+    if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/libffi/$BUILD_LIBFFI_VER" ]; then
+        echo "Setting up libffi in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/libffi/$BUILD_LIBFFI_VER" ; setup_libffi_pkg
+    fi
 
 add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/libffi $BUILD_LIBFFI_VER $PKG_LOCAL
 
 # OPENSSL
-if [ ! -d "$PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER" ]; then
-    echo "Downloading OpenSSL in $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER" ; get_openssl_pkg
-fi
-
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER" ]; then
-    echo "Setting up OpenSSL in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER" ; setup_openssl_pkg
-fi
+    if [ ! -d "$PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER" ]; then
+        echo "Downloading OpenSSL in $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER" ; get_openssl_pkg
+    fi
+    if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER" ]; then
+        echo "Setting up OpenSSL in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER" ; setup_openssl_pkg
+    fi
 
 add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
 
 # PYTHON
-if [ ! -d "$PKG_DOWNLOAD/python/$BUILD_python_VER" ]; then
-    echo "Downloading Python in $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER" ; get_python_pkg
-fi
-
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/python/$BUILD_PYTHON_VER" ]; then
-    echo "Setting up Python3 in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/python/$BUILD_PYTHON_VER" ; setup_python_pkg
-fi
+    if [ ! -d "$PKG_DOWNLOAD/python/$BUILD_python_VER" ]; then
+        echo "Downloading Python in $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER" ; get_python_pkg
+    fi
+    if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/python/$BUILD_PYTHON_VER" ]; then
+        echo "Setting up Python3 in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/python/$BUILD_PYTHON_VER" ; setup_python_pkg
+    fi

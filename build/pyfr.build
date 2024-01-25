@@ -1,0 +1,33 @@
+BUILD_NAME=$1
+BUILD_TAG=$2
+TEST_NP=$3
+
+export UCX_WARN_UNUSED_ENV_VARS=n
+
+export VENV_NAME="venv-${BUILD_NAME}-${BUILD_TAG}"
+export PYFR_NAME="pyfr-${BUILD_NAME}-${BUILD_TAG}"
+
+if [ -d "$VENV_LOCAL/$VENV_NAME" ]; then
+    echo -e "\nVenv already exists. Skipping venv build.\n"
+else
+    git clone https://github.com/PyFR/PyFR-Test-Cases.git $GIT_LOCAL/Github_PyFR-Test-Cases/$VENV_NAME
+    cd $GIT_LOCAL/Github_PyFR-Test-Cases/$VENV_NAME/2d-euler-vortex
+    pyfr import euler-vortex.msh euler-vortex.pyfrm
+fi
+
+cd $GIT_LOCAL/Github_PyFR-Test-Cases/$VENV_NAME/2d-euler-vortex
+
+#    pyfr partition 1 euler-vortex.pyfrm .
+#    mpirun -n 1 pyfr -p run -b openmp euler-vortex.pyfrm euler-vortex.ini
+#    mpirun -n 1 pyfr -p run -b hip euler-vortex.pyfrm euler-vortex.ini
+
+CMD="pyfr partition ${TEST_NP} euler-vortex.pyfrm ."
+echo -e "\n$CMD\n" ; eval $CMD
+
+#CMD="mpirun -n ${TEST_NP} pyfr -p run -b openmp euler-vortex.pyfrm euler-vortex.ini"
+#echo -e "\n$CMD\n" ; eval $CMD
+
+CMD="mpirun -n ${TEST_NP} pyfr -p run -b hip euler-vortex.pyfrm euler-vortex.ini"
+echo -e "\n$CMD\n" ; eval $CMD
+
+echo -e "\nLocation of venv: $VENV_LOCAL/$VENV_NAME\nLocation of git: $GIT_LOCAL/Github_PyFR/${PYFR_NAME}\n"
