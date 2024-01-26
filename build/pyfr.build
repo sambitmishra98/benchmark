@@ -7,6 +7,8 @@ export UCX_WARN_UNUSED_ENV_VARS=n
 export VENV_NAME="venv-${BUILD_NAME}-${BUILD_TAG}"
 export PYFR_NAME="pyfr-${BUILD_NAME}-${BUILD_TAG}"
 
+ml WebProxy
+
 if [ -d "$VENV_LOCAL/$VENV_NAME" ]; then
     echo -e "\nVenv already exists. Skipping venv build.\n"
 else

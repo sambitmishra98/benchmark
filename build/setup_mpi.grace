@@ -18,48 +18,48 @@
 # ------------------------------------------------------------------------------
 
 
-/sw/local/bin/query_gpu.sh
+    /sw/local/bin/query_gpu.sh
 
-nvidia-smi -L ; clinfo -l
-source ~/.bashrc
-echo -e "\n================================================================="
+    nvidia-smi -L ; clinfo -l
+    source ~/.bashrc
+    echo -e "\n================================================================="
 
-export BUILD_NAME="cuda"
-export BUILD_TAG="grace1"
-export BUILD_PATH="/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build"
+    export BUILD_NAME="cuda"
+    export BUILD_TAG="grace1"
+    export BUILD_PATH="/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build"
 
 # ------------------------------------------------------------------------------
 # Print SLURM settings
 # ------------------------------------------------------------------------------
 
-    numnodes=$SLURM_JOB_NUM_NODES
-    mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\1/')
-    np=$[${SLURM_JOB_NUM_NODES}*${mpi_tasks_per_node}]
+        numnodes=$SLURM_JOB_NUM_NODES
+        mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\1/')
+        np=$[${SLURM_JOB_NUM_NODES}*${mpi_tasks_per_node}]
 
-    echo "Running on master node: `hostname`"
-    echo "Time: `date`"
-    echo "Current directory: `pwd`"
-    echo -e "JobID: $SLURM_JOB_ID\n================================================================="
-    echo -e "Tasks=${SLURM_NTASKS},\
-            nodes=${SLURM_JOB_NUM_NODES}, \
-            mpi_tasks_per_node=${mpi_tasks_per_node} \
-            (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
+        echo "Running on master node: `hostname`"
+        echo "Time: `date`"
+        echo "Current directory: `pwd`"
+        echo -e "JobID: $SLURM_JOB_ID\n================================================================="
+        echo -e "Tasks=${SLURM_NTASKS},\
+                nodes=${SLURM_JOB_NUM_NODES}, \
+                mpi_tasks_per_node=${mpi_tasks_per_node} \
+                (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
 
 # ------------------------------------------------------------------------------
 # Setup paths
 # ------------------------------------------------------------------------------
 
-    setup_base
-    export_all_versions
-#    add_installation_to_path rocm-6.0.0 ""             "/opt"
-    add_installation_to_path  cuda-12.2  ""             "/usr/local/"
-    add_installation_to_path  gcc        $BUILD_GCC_VER $PKG_LOCAL
+        setup_base
+        export_all_versions
+    #    add_installation_to_path rocm-6.0.0 ""             "/opt"
+        add_installation_to_path  cuda-12.2  ""             "/usr/local/"
+        add_installation_to_path  gcc        $BUILD_GCC_VER $PKG_LOCAL
 
 # ------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="${BUILD_PATH}/openmpi.build ${BUILD_NAME} ${BUILD_TAG} ${BUILD_UCX_VER} ${BUILD_OPENMPI_VER}"
+CMD="${BUILD_PATH}/openmpi.build ${BUILD_NAME} ${BUILD_TAG} ${BUILD_MPICH_VER} ${BUILD_UCX_VER} ${BUILD_OPENMPI_VER}"
 echo -e "\n$CMD\n"
 eval $CMD
 

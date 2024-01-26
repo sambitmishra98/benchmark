@@ -1,27 +1,24 @@
 #!/bin/bash
-#SBATCH --job-name="pyfr-script"
-#SBATCH --nodes=3
+#SBATCH --job-name="venv-build"
+#SBATCH --nodes=1
 #SBATCH --exclusive
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=pyfr-build-hip.out
+#SBATCH --output=PyFR-build-PVC.out
 #SBATCH --no-requeue
-#SBATCH --partition=amd
-#SBATCH --ntasks=9
-#SBATCH --gres=gpu:3
-#SBATCH --cpus-per-gpu=8
+#SBATCH --partition=pvc
+#SBATCH --ntasks=24
+#SBATCH --gres=gpu:pvc:4
+#SBATCH --cpus-per-gpu=12
 
 # ------------------------------------------------------------------------------
 # Check environment
 # ------------------------------------------------------------------------------
 
-    . /etc/profile.d/modules.sh
-    module purge
-
-    rocm-smi
-    # nvidia-smi -L ; clinfo -l
+    #nvidia-smi -L
+    clinfo -l
     source ~/.bashrc
     echo -e "\n================================================================="
 
@@ -60,15 +57,12 @@
     setup_base
     export_all_versions
 
-    add_installation_to_path rocm-6.0.0 ""                 "/opt"
     add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
 
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi  $BUILD_LIBFFI_VER  $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  $BUILD_PYTHON_VER  $PKG_LOCAL
 
-#    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/ucx         $BUILD_UCX_VER     $PKG_LOCAL
-#    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/openmpi     $BUILD_OPENMPI_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/mpich     $BUILD_MPICH_VER $PKG_LOCAL
 
     add_optional_pyfr_dependencies

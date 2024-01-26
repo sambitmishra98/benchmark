@@ -1,29 +1,27 @@
 #!/bin/bash
-#SBATCH --job-name="pyfr-script"
-#SBATCH --nodes=3
+#SBATCH --job-name="venv-build"
+#SBATCH --nodes=1
 #SBATCH --exclusive
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=pyfr-build-hip.out
+#SBATCH --output=Venv-build-PVC.out
 #SBATCH --no-requeue
-#SBATCH --partition=amd
-#SBATCH --ntasks=9
-#SBATCH --gres=gpu:3
-#SBATCH --cpus-per-gpu=8
+#SBATCH --partition=pvc
+#SBATCH --ntasks=24
+#SBATCH --gres=gpu:pvc:4
+#SBATCH --cpus-per-gpu=12
 
 # ------------------------------------------------------------------------------
 # Check environment
 # ------------------------------------------------------------------------------
 
-    . /etc/profile.d/modules.sh
-    module purge
-
-    rocm-smi
-    # nvidia-smi -L ; clinfo -l
+    #nvidia-smi -L
+    clinfo -l
     source ~/.bashrc
     echo -e "\n================================================================="
+
 
     export BUILD_NAME="pvc"
     export BUILD_TAG="aces"
@@ -36,22 +34,23 @@
 
     export BUILD_PATH="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build"
 
+
 # ------------------------------------------------------------------------------
 # Print SLURM settings
 # ------------------------------------------------------------------------------
 
-    numnodes=$SLURM_JOB_NUM_NODES
-    mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\1/')
-    np=$[${SLURM_JOB_NUM_NODES}*${mpi_tasks_per_node}]
+numnodes=$SLURM_JOB_NUM_NODES
+mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\1/')
+np=$[${SLURM_JOB_NUM_NODES}*${mpi_tasks_per_node}]
 
-    echo "Running on master node: `hostname`"
-    echo "Time: `date`"
-    echo "Current directory: `pwd`"
-    echo -e "JobID: $SLURM_JOB_ID\n================================================================="
-    echo -e "Tasks=${SLURM_NTASKS},\
-            nodes=${SLURM_JOB_NUM_NODES}, \
-            mpi_tasks_per_node=${mpi_tasks_per_node} \
-            (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
+echo "Running on master node: `hostname`"
+echo "Time: `date`"
+echo "Current directory: `pwd`"
+echo -e "JobID: $SLURM_JOB_ID\n================================================================="
+echo -e "Tasks=${SLURM_NTASKS},\
+         nodes=${SLURM_JOB_NUM_NODES}, \
+         mpi_tasks_per_node=${mpi_tasks_per_node} \
+         (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
 
 # ------------------------------------------------------------------------------
 # Setup paths
@@ -59,37 +58,36 @@
 
     setup_base
     export_all_versions
-
-    add_installation_to_path rocm-6.0.0 ""                 "/opt"
+#    add_installation_to_path rocm-6.0.0 ""             "/opt"
+#    add_installation_to_path  cuda-12.2  ""             "/usr/local/"
     add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
 
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi  $BUILD_LIBFFI_VER  $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  $BUILD_PYTHON_VER  $PKG_LOCAL
 
-#    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/ucx         $BUILD_UCX_VER     $PKG_LOCAL
-#    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/openmpi     $BUILD_OPENMPI_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/mpich     $BUILD_MPICH_VER $PKG_LOCAL
 
-    add_optional_pyfr_dependencies
-
-    source $VENV_LOCAL/venv-${BUILD_NAME}-${BUILD_TAG}/bin/activate
 # ------------------------------------------------------------------------------
-# Setup PyFR
+# Setup venv
 # ------------------------------------------------------------------------------
 
-    CMD="${BUILD_PATH}/pyfr.build ${BUILD_NAME} ${BUILD_TAG} ${np}"
+    CMD="${BUILD_PATH}/venv.build ${BUILD_NAME} ${BUILD_TAG}"
     echo -e "\n$CMD\n"
     eval $CMD
+
+    source $VENV_LOCAL/venv-${BUILD_NAME}-${BUILD_TAG}/bin/activate
+
 
 # A simple Hello-world test for mpi4py in venv
 echo -e "\n--------------------------------------------------\n"
 echo -e "\n MPI test begins\n"
 
-CMD="mpirun -n ${np} python3 -c 'from mpi4py import MPI; print(MPI.COMM_WORLD.Get_rank())'"
+CMD="mpirun -n 2 python3 -c 'from mpi4py import MPI; print(MPI.COMM_WORLD.Get_rank())'"
 echo -e "\n$CMD\n"
 eval $CMD
 echo -e "\n MPI test complete\n"
 echo -e "\n--------------------------------------------------\n"
+
 
 echo -e "\nSimulation ends\n"

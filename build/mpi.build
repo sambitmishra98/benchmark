@@ -1,9 +1,10 @@
 BUILD_NAME=$1
 NODE_NAME=$2
-BUILD_UCX_VER=$3
-BUILD_OPENMPI_VER=$4
+BUILD_MPICH_VER=$3
+BUILD_UCX_VER=$4
+BUILD_OPENMPI_VER=$5
 
-BUILD_CLUSTER=$SLURM_SUBMIT_HOST
+BUILD_CLUSTER=aces
 BUILD_PARTITION=$SLURM_JOB_PARTITION
 BUILD_NP=$SLURM_NTASKS
 
@@ -16,6 +17,8 @@ echo -e "BUILD_CLUSTER: $BUILD_CLUSTER"
 echo -e "BUILD_PARTITION: $BUILD_PARTITION"
 echo -e "BUILD_NP: $BUILD_NP"
 echo -e "=================================================================\n"
+
+ml WebProxy
 
 add_installation_to_path() {
     local name=$1
@@ -154,21 +157,20 @@ if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/$BUILD_MPICH_VER" ]; then
     echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
 fi
 
-# if [ ! -d "$PKG_DOWNLOAD/ucx/$BUILD_UCX_VER" ]; then
-#     echo "Downloading UCX" ; get_ucx_pkg
-# fi
-# 
-# if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ]; then
-#     echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ; setup_ucx_pkg
-# fi
-# 
-# add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/ucx      $BUILD_UCX_VER     $PKG_LOCAL
-# 
-# if [ ! -d "$PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER" ]; then
-#     echo "Downloading OpenMPI" ; get_openmpi_pkg
-# fi
-# 
-# if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ]; then
-#     echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
-# fi
-# 
+if [ ! -d "$PKG_DOWNLOAD/ucx/$BUILD_UCX_VER" ]; then
+    echo "Downloading UCX" ; get_ucx_pkg
+fi
+
+if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ]; then
+    echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ; setup_ucx_pkg
+fi
+
+add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/ucx      $BUILD_UCX_VER     $PKG_LOCAL
+
+if [ ! -d "$PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER" ]; then
+    echo "Downloading OpenMPI" ; get_openmpi_pkg
+fi
+
+if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ]; then
+    echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
+fi

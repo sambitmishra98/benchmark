@@ -17,8 +17,8 @@ class ScriptMaker:
 
         mpi_lib = 'mpich'   # Use MPICH everywhere
         #export MPIR_CVAR_ENABLE_GPU=1 ; 
-        if   backend ==   'cuda': srun_or_mpirun = f'time mpirun' #
-        elif backend == 'opencl': srun_or_mpirun = f'time mpirun' #
+        if   backend ==   'cuda': srun_or_mpirun = f'mpirun ' #
+        elif backend == 'opencl': srun_or_mpirun = f'mpirun ' #
         elif backend in ['hip', 'metal', 'openmp']: 
             raise ValueError(f"Backend {backend} yet to be supported")
         else: 
@@ -70,7 +70,7 @@ class ScriptMaker:
         return f'''#!/bin/bash
 #SBATCH --job-name="{job_name}"
 #SBATCH --nodes={nodes}
-##SBATCH --exclusive
+#SBATCH --exclusive
 ##SBATCH --reservation=r3_debugging
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
@@ -82,11 +82,11 @@ class ScriptMaker:
 #SBATCH --ntasks={ntasks}
 #SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}
 #SBATCH --cpus-per-gpu=8
-#SBATCH --nodelist={nodelist}
+##SBATCH --nodelist={nodelist}
 
 source ~/.bashrc
 
-add_all_paths
+# add_all_paths
 
 {subscript_setup}
 
@@ -105,7 +105,7 @@ inif="../../configs/steps{steps}_caware{caware}_order{order}_precision{precision
 meshf="../../partitions/tasks{ntasks}_{etype}{elems}.pyfrm"; 
 # ------------------------------------------------------------------------------
 
-echo $PATH
+echo $PATH | tr ':' '\\n'
 
 # Run subscript
 {subscript_run}
