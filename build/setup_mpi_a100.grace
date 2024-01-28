@@ -1,33 +1,23 @@
 #!/bin/bash
 #SBATCH --job-name="mpi-build"
-#SBATCH --nodes=1
-##SBATCH --exclusive
+#SBATCH --nodes=2
+#SBATCH --exclusive
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=MPI-build-cuda.out
+#SBATCH --output=MPI-build-A100.out
 #SBATCH --no-requeue
 #SBATCH --partition=gpu
 #SBATCH --ntasks=24
-#SBATCH --gres=gpu:a100:1
-#SBATCH --cpus-per-gpu=24
+#SBATCH --gres=gpu:a100:2
+#SBATCH --cpus-per-gpu=12
 
 # ------------------------------------------------------------------------------
 # Check environment
 # ------------------------------------------------------------------------------
 
-
-    /sw/local/bin/query_gpu.sh
-
-    nvidia-smi -L ; clinfo -l
     source ~/.bashrc
-    echo -e "\n================================================================="
-
-    export BUILD_NAME="cuda"
-    export BUILD_TAG="grace1"
-    export BUILD_PATH="$SCRATCH/EFFORT_BENCHMARK/benchmark/build"
-
 # ------------------------------------------------------------------------------
 # Print SLURM settings
 # ------------------------------------------------------------------------------
@@ -49,25 +39,24 @@
 # Setup paths
 # ------------------------------------------------------------------------------
 
-        setup_base
-        export_all_versions
-    #    add_installation_to_path rocm-6.0.0 ""             "/opt"
-        add_installation_to_path  cuda-12.2  ""             "/usr/local/"
+        BUILD_A100_2024_01_28_ENV
         add_installation_to_path  gcc        $BUILD_GCC_VER $PKG_LOCAL
 
 # ------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="${BUILD_PATH}/openmpi.build ${BUILD_NAME} ${BUILD_TAG} ${BUILD_MPICH_VER} ${BUILD_UCX_VER} ${BUILD_OPENMPI_VER}"
+CMD="${BUILD_PATH}/build_scripts/build_mpi.script"
 echo -e "\n$CMD\n"
 eval $CMD
 
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/ucx     ${BUILD_UCX_VER}     $PKG_LOCAL
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/openmpi ${BUILD_OPENMPI_VER} $PKG_LOCAL
+# ------------------------------------------------------------------------------
+# CHECK IF BUILD WAS SUCCESSFUL
+# ------------------------------------------------------------------------------
 
-which mpirun
-ompi_info
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich   ${BUILD_MPICH_VER}   ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx     ${BUILD_UCX_VER}     ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
 
 # ------------------------------------------------------------------------------
 # Test build with osu_microbenchmarks and other CUDA benchmarks

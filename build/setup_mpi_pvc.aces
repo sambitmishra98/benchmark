@@ -47,7 +47,7 @@
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="${BUILD_PATH}/mpi.build"
+CMD="${BUILD_PATH}/build_scripts/mpi.build"
 echo -e "\n$CMD\n"
 eval $CMD
 
