@@ -1,0 +1,45 @@
+Running on master node: g066.cluster
+Time: Sun Jan 28 12:08:54 CST 2024
+Current directory: /scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build
+JobID: 9617149
+=================================================================
+Tasks=24,         nodes=2,          mpi_tasks_per_node=12          (OMP_NUM_THREADS=1)
+Virtual environments:
+	 
+	 
+	  
+	 
+	 
+[32mAdding gcc installation at /scratch/user/sambit98/.local-grace1/pkg/gcc/12.3.0 to PATH[0m
+[31mERROR IN PATH ADDITION: /scratch/user/sambit98/.local-grace1/pkg/curl/8.5.0 DOES NOT EXIST !!!![0m
+[31mERROR IN PATH ADDITION: /scratch/user/sambit98/.local-grace1/pkg/git/2.43.0 DOES NOT EXIST !!!![0m
+[32mAdding a100-grace/libffi installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/libffi/3.4.4 to PATH[0m
+[32mAdding a100-grace/openssl installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/openssl/1.1.1w to PATH[0m
+[32mAdding a100-grace/python installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/python/3.12.1 to PATH[0m
+[32mAdding a100-grace/ucx installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/ucx/1.15.0 to PATH[0m
+[32mAdding a100-grace/openmpi installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/openmpi/5.0.1 to PATH[0m
+
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_scripts/build_venv.script
+
+Requirement already satisfied: pip in /scratch/user/sambit98/.local-grace1/venv/venv-a100-grace_ompi/lib/python3.12/site-packages (23.2.1)
+Collecting pip
+  Obtaining dependency information for pip from https://files.pythonhosted.org/packages/15/aa/3f4c7bcee2057a76562a5b33ecbd199be08cdb4443a02e26bd2c3cf6fc39/pip-23.3.2-py3-none-any.whl.metadata
+  Using cached pip-23.3.2-py3-none-any.whl.metadata (3.5 kB)
+Using cached pip-23.3.2-py3-none-any.whl (2.1 MB)
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 23.2.1
+    Uninstalling pip-23.2.1:
+      Successfully uninstalled pip-23.2.1
+Successfully installed pip-23.3.2
+Collecting mpi4py
+  Downloading mpi4py-3.1.5.tar.gz (2.5 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.5/2.5 MB 43.6 MB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: mpi4py
+  Building wheel for mpi4py (pyproject.toml): started
