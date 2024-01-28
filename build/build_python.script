@@ -1,9 +1,3 @@
-BUILD_NAME=$1
-NODE_NAME=$2
-BUILD_LIBFFI_VER=$3
-BUILD_OPENSSL_VER=$4
-BUILD_PYTHON_VER=$5
-
 export MAKE_NP=48
 
 add_installation_to_path() {
@@ -57,7 +51,7 @@ get_python_pkg(){
 
 setup_libffi_pkg(){
     cd $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER/libffi-$BUILD_LIBFFI_VER
-    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/libffi/$BUILD_LIBFFI_VER" ; echo $CMD
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi/$BUILD_LIBFFI_VER" ; echo $CMD
     eval $CMD
     make clean ; make -j 32
     make install
@@ -65,7 +59,7 @@ setup_libffi_pkg(){
 
 setup_openssl_pkg(){
     cd $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER/openssl-$BUILD_OPENSSL_VER
-    CMD="./config --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER" ; echo $CMD
+    CMD="./config --prefix=$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl/$BUILD_OPENSSL_VER" ; echo $CMD
     eval $CMD
     make clean ; make -j 32
     make install
@@ -73,9 +67,9 @@ setup_openssl_pkg(){
 
 setup_python_pkg(){
     cd $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER/Python-$BUILD_PYTHON_VER
-    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/python/${BUILD_PYTHON_VER} \
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python/${BUILD_PYTHON_VER} \
                      --enable-shared \
-                     --with-openssl=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER \
+                     --with-openssl=$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl/$BUILD_OPENSSL_VER \
                      --enable-optimizations"
     echo $CMD
     eval $CMD
@@ -87,26 +81,26 @@ setup_python_pkg(){
     if [ ! -d "$PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER" ]; then
         echo "Downloading libffi in $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER" ; get_libffi_pkg
     fi
-    if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/libffi/$BUILD_LIBFFI_VER" ]; then
-        echo "Setting up libffi in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/libffi/$BUILD_LIBFFI_VER" ; setup_libffi_pkg
+    if [ ! -d "$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi/$BUILD_LIBFFI_VER" ]; then
+        echo "Setting up libffi in $PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi/$BUILD_LIBFFI_VER" ; setup_libffi_pkg
     fi
 
-add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/libffi $BUILD_LIBFFI_VER $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi $BUILD_LIBFFI_VER $PKG_LOCAL
 
 # OPENSSL
     if [ ! -d "$PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER" ]; then
         echo "Downloading OpenSSL in $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER" ; get_openssl_pkg
     fi
-    if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER" ]; then
-        echo "Setting up OpenSSL in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openssl/$BUILD_OPENSSL_VER" ; setup_openssl_pkg
+    if [ ! -d "$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl/$BUILD_OPENSSL_VER" ]; then
+        echo "Setting up OpenSSL in $PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl/$BUILD_OPENSSL_VER" ; setup_openssl_pkg
     fi
 
-add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
 
 # PYTHON
     if [ ! -d "$PKG_DOWNLOAD/python/$BUILD_python_VER" ]; then
         echo "Downloading Python in $PKG_DOWNLOAD/python/$BUILD_PYTHON_VER" ; get_python_pkg
     fi
-    if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/python/$BUILD_PYTHON_VER" ]; then
-        echo "Setting up Python3 in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/python/$BUILD_PYTHON_VER" ; setup_python_pkg
+    if [ ! -d "$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python/$BUILD_PYTHON_VER" ]; then
+        echo "Setting up Python3 in $PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python/$BUILD_PYTHON_VER" ; setup_python_pkg
     fi

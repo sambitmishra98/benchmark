@@ -17,16 +17,7 @@
 # Check environment
 # ------------------------------------------------------------------------------
 
-    # /sw/local/bin/query_gpu.sh
-
-    #nvidia-smi -L
-    clinfo -l
     source ~/.bashrc
-    echo -e "\n================================================================="
-
-    export BUILD_NAME="pvc"
-    export BUILD_TAG="aces"
-    export BUILD_PATH="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build"
 
 # ------------------------------------------------------------------------------
 # Print SLURM settings
@@ -57,12 +48,12 @@
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="${BUILD_PATH}/python.build ${BUILD_NAME} ${BUILD_TAG} ${BUILD_LIBFFI_VER} ${BUILD_OPENSSL_VER} ${BUILD_PYTHON_VER} "
+CMD="${BUILD_PATH}/python.build"
 echo -e "\n$CMD\n"
 eval $CMD
 
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/libffi  ${BUILD_LIBFFI_VER} $PKG_LOCAL
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/openssl ${BUILD_OPENSSL_VER} $PKG_LOCAL
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/python  ${BUILD_PYTHON_VER} $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi  ${BUILD_LIBFFI_VER} $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl ${BUILD_OPENSSL_VER} $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  ${BUILD_PYTHON_VER} $PKG_LOCAL
 
 echo -e "\nSimulation ends\n"

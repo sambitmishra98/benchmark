@@ -17,23 +17,7 @@
 # Check environment
 # ------------------------------------------------------------------------------
 
-    #nvidia-smi -L
-    clinfo -l
     source ~/.bashrc
-    echo -e "\n================================================================="
-
-
-    export BUILD_NAME="pvc"
-    export BUILD_TAG="aces"
-
-    export BUILD_NAME_PYTHON="pvc"
-    export BUILD_TAG_PYTHON="aces"
-
-    export BUILD_NAME_OMPI="pvc"
-    export BUILD_TAG_OMPI="aces"
-
-    export BUILD_PATH="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build"
-
 
 # ------------------------------------------------------------------------------
 # Print SLURM settings
@@ -58,26 +42,28 @@ echo -e "Tasks=${SLURM_NTASKS},\
 
     setup_base
     export_all_versions
-#    add_installation_to_path rocm-6.0.0 ""             "/opt"
-#    add_installation_to_path  cuda-12.2  ""             "/usr/local/"
     add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
+
+    add_installation_to_path curl     $BUILD_CURL_VER    $PKG_LOCAL
+    add_installation_to_path git      $BUILD_GIT_VER     $PKG_LOCAL
 
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi  $BUILD_LIBFFI_VER  $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  $BUILD_PYTHON_VER  $PKG_LOCAL
 
-    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/mpich     $BUILD_MPICH_VER $PKG_LOCAL
+#    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich     $BUILD_MPICH_VER $PKG_LOCAL
+    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx         $BUILD_UCX_VER     $PKG_LOCAL
+    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi     $BUILD_OPENMPI_VER $PKG_LOCAL
 
 # ------------------------------------------------------------------------------
 # Setup venv
 # ------------------------------------------------------------------------------
 
-    CMD="${BUILD_PATH}/venv.build ${BUILD_NAME} ${BUILD_TAG}"
+    CMD="${BUILD_PATH}/venv.build"
     echo -e "\n$CMD\n"
     eval $CMD
 
-    source $VENV_LOCAL/venv-${BUILD_NAME}-${BUILD_TAG}/bin/activate
-
+    source $VENV_LOCAL/venv-${BUILD_NAME_VENV}-${BUILD_TAG_VENV}/bin/activate
 
 # A simple Hello-world test for mpi4py in venv
 echo -e "\n--------------------------------------------------\n"

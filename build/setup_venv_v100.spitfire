@@ -6,7 +6,7 @@
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=venv-build-cuda.out
+#SBATCH --output=built-venv-cuda.out
 #SBATCH --no-requeue
 #SBATCH --partition=all
 #SBATCH --ntasks=8

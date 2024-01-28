@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
 
-SCALING_TYPE = 'strong'
-BASE_ELEMENTS = 32
-BASE_PARTS_PER_NODE = 20
+SCALING_TYPE = 'weak'
+BASE_ELEMENTS = 80
+BASE_PARTS_PER_NODE = 12
 
 # GLOBAL VARIABLES
 NODELIST = 'fc036'

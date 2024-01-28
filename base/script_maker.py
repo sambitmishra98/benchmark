@@ -10,57 +10,37 @@ class ScriptMaker:
 
         # If the string nodelist contains the substring 'ac' then we are working on the ACES cluster
         # else if nodelist contains the substring 'fc' then we are working on the FASTER cluster
-        if    'g' in nodelist: cluster = 'Grace'
-        if   'ac' in nodelist: cluster = 'ACES'
-        elif 'fc' in nodelist: cluster = 'FASTER'
+        if   'ac'          in nodelist: cluster = 'ACES'
+        elif 'fc'          in nodelist: cluster = 'FASTER'
+        elif 'g'           in nodelist: cluster = 'Grace'
+        elif 'spitfire-ng' in nodelist: cluster = 'Spitfire'
         else:                  raise ValueError(f"Cluster not supported")
 
         mpi_lib = 'mpich'   # Use MPICH everywhere
         #export MPIR_CVAR_ENABLE_GPU=1 ; 
-        if   backend ==   'cuda': srun_or_mpirun = f'mpirun ' #
-        elif backend == 'opencl': srun_or_mpirun = f'mpirun ' #
-        elif backend in ['hip', 'metal', 'openmp']: 
+        if   backend ==   'cuda': ompi_mca = f'--mca accelerator cuda' #
+        elif backend ==    'hip': ompi_mca = f'--mca accelerator rocm' #
+        elif backend == 'opencl': ompi_mca = f'--mca accelerator null' #
+        elif backend == 'openmp': ompi_mca = f'--mca accelerator null' #
+        elif backend in ['metal']: 
             raise ValueError(f"Backend {backend} yet to be supported")
         else: 
             raise ValueError(f"Backend {backend} DOES NOT EXIST!!")
 
-        a100_subscripts = {
-            'setup': f'/sw/local/bin/query_gpu.sh ; nvidia-smi -L ; clinfo -l',
-            'run': f'CMD="{srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
-                     f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";\n'\
-                        f'eval $CMD;',
-        }
+        if gpu == 'pvc':
+            prerun='xpumcli dump -d -1 -m 0,2,3,5,6,7,17,18 -i 10 > "log_gpus" &\n' \
+                     'xpumanager_pid=$!\n'  
+            postrun='kill $xpumanager_pid'
+        else:
+            prerun=''
+            postrun=''
 
-        pvc_subscripts = {
-            'setup': f' export MPIR_CVAR_ENABLE_GPU=0 ; clinfo -l',
-            'run': f'xpumcli dump -d -1 -m 0,2,3,5,6,7,17,18 -i 10 > "log_gpus" &\n' \
-                   f'xpumanager_pid=$!\n'\
-                   f'CMD="time {srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
-                   f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; \n'\
-                   f'eval $CMD;\n'\
-                   f'kill $xpumanager_pid'\
-                    }
-
-        h100_subscripts = {
-            'setup': f'setup_custom_libraries_venv_{mpi_lib} ; clinfo -l',
-            'run': f'CMD="time {srun_or_mpirun} -n {ntasks} pyfr run -b {backend} $meshf $inif";\n'\
-                   f'echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";\n'\
-                   f'eval $CMD;',
-        }
-
-        # Options
-        # 1.   aces, pvc,  pvc, opencl
-        # 2.   aces, gpu, h100, opencl        
-        # 3.   aces, gpu, h100,   cuda
-        # 4. faster, gpu, a100, opencl
-        # 5. faster, gpu, a100,   cuda
-
-        if   partition == 'pvc' and gpu ==  'pvc': subscript_setup =  pvc_subscripts['setup']; subscript_run =  pvc_subscripts['run']
-        elif partition == 'gpu' and gpu == 'h100': subscript_setup = h100_subscripts['setup']; subscript_run = h100_subscripts['run']
-        elif partition == 'gpu' and gpu == 'a100': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
-        elif partition == 'gpu' and gpu ==  'a40': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
-        elif partition == 'gpu' and gpu ==  'a10': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
-        elif partition == 'gpu' and gpu ==   't4': subscript_setup = a100_subscripts['setup']; subscript_run = a100_subscripts['run']
+        if   partition == 'pvc' and gpu ==  'pvc': pass
+        elif partition == 'gpu' and gpu == 'h100': pass
+        elif partition == 'gpu' and gpu == 'a100': pass
+        elif partition == 'gpu' and gpu ==  'a40': pass
+        elif partition == 'gpu' and gpu ==  'a10': pass
+        elif partition == 'gpu' and gpu ==   't4': pass
         else: raise ValueError(f"Partition {partition} not supported")
 
         job_name = f"{prefix}partition{partition}_nodelist{nodelist}_" \
@@ -70,25 +50,27 @@ class ScriptMaker:
         return f'''#!/bin/bash
 #SBATCH --job-name="{job_name}"
 #SBATCH --nodes={nodes}
-#SBATCH --exclusive
+##SBATCH --exclusive
 ##SBATCH --reservation=r3_debugging
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-{self.simulation_wait_time}:00:00
-#SBATCH --mem=80G
+#SBATCH --mem=100G
 #SBATCH --output={job_name}.out
 #SBATCH --no-requeue
 #SBATCH --partition={partition}
 #SBATCH --ntasks={ntasks}
 #SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}
-#SBATCH --cpus-per-gpu=8
+#SBATCH --cpus-per-gpu=2
 ##SBATCH --nodelist={nodelist}
 
 source ~/.bashrc
 
-# add_all_paths
+CMD="/sw/local/bin/query_gpu.sh ; nvidia-smi"; echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";
+eval $CMD;
 
-{subscript_setup}
+CMD="clinfo -l"; echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; 
+eval $CMD;
 
 numnodes=$SLURM_JOB_NUM_NODES
 mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\\([0-9][0-9]*\\).*$/\\1/')
@@ -106,9 +88,14 @@ meshf="../../partitions/tasks{ntasks}_{etype}{elems}.pyfrm";
 # ------------------------------------------------------------------------------
 
 echo $PATH | tr ':' '\\n'
+echo "PYFR_XSMM_LIBRARY_PATH=$PYFR_XSMM_LIBRARY_PATH"
+echo "PYFR_METIS_LIBRARY_PATH=$PYFR_METIS_LIBRARY_PATH"
+echo "PYFR_CLBLAST_LIBRARY_PATH=$PYFR_CLBLAST_LIBRARY_PATH"
 
 # Run subscript
-{subscript_run}
+    CMD="time mpirun {ompi_mca} -n {ntasks} pyfr run -b {backend} $meshf $inif"
+    echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";
+    eval $CMD;
 
 # ------------------------------------------------------------------------------
 

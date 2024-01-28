@@ -34,8 +34,6 @@
     export BUILD_NAME_OMPI="pvc"
     export BUILD_TAG_OMPI="aces"
 
-    export BUILD_PATH="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build"
-
 # ------------------------------------------------------------------------------
 # Print SLURM settings
 # ------------------------------------------------------------------------------

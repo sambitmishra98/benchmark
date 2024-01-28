@@ -124,8 +124,8 @@ class ConfigMaker:
             "rho": "(1.0+1.0*U*U/16*(cos(2*x)+cos(2*y))*(cos(2*z)+2))/1.0",
         }
         config["soln-plugin-benchmark"] = {
-            "flushsteps": "1",
-            "file": "perf.csv",
+            "flushsteps": "10000",
+            "file": "perf_counter_measurements.csv",
             "header": "true",
             "mesh": partition_file,
             "continue-sim": "True",
@@ -158,11 +158,11 @@ class ConfigMaker:
 #            "file": "residual.csv",
 #            "header": "true",
 #        }
-#        config["soln-plugin-writer"] = {
-#            "dt-out": str(10**expo_dt),
-#            "basedir": ".",
-#            "basename": f"soln-{{t:.{-expo_dt}f}}",
-#        }
+        config["soln-plugin-writer"] = {
+            "dt-out": str(10**expo_dt),
+            "basedir": ".",
+            "basename": f"soln-{{t:.{-expo_dt}f}}",
+        }
 
         # Write the config file
         with open(output_file, 'w') as configfile:

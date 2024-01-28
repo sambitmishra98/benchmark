@@ -17,21 +17,7 @@
 # Check environment
 # ------------------------------------------------------------------------------
 
-    #nvidia-smi -L
-    clinfo -l
     source ~/.bashrc
-    echo -e "\n================================================================="
-
-    export BUILD_NAME="pvc"
-    export BUILD_TAG="aces"
-
-    export BUILD_NAME_PYTHON="pvc"
-    export BUILD_TAG_PYTHON="aces"
-
-    export BUILD_NAME_OMPI="pvc"
-    export BUILD_TAG_OMPI="aces"
-
-    export BUILD_PATH="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build"
 
 # ------------------------------------------------------------------------------
 # Print SLURM settings
@@ -63,27 +49,17 @@
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  $BUILD_PYTHON_VER  $PKG_LOCAL
 
-    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/mpich     $BUILD_MPICH_VER $PKG_LOCAL
+    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich     $BUILD_MPICH_VER $PKG_LOCAL
 
     add_optional_pyfr_dependencies
 
-    source $VENV_LOCAL/venv-${BUILD_NAME}-${BUILD_TAG}/bin/activate
+    source $VENV_LOCAL/venv-${BUILD_NAME_VENV}-${BUILD_TAG_VENV}/bin/activate
 # ------------------------------------------------------------------------------
 # Setup PyFR
 # ------------------------------------------------------------------------------
 
-    CMD="${BUILD_PATH}/pyfr.build ${BUILD_NAME} ${BUILD_TAG} ${np}"
+    CMD="${BUILD_PATH}/pyfr.build ${BUILD_NAME_VENV} ${BUILD_TAG_VENV} ${np}"
     echo -e "\n$CMD\n"
     eval $CMD
 
-# A simple Hello-world test for mpi4py in venv
-echo -e "\n--------------------------------------------------\n"
-echo -e "\n MPI test begins\n"
-
-CMD="mpirun -n ${np} python3 -c 'from mpi4py import MPI; print(MPI.COMM_WORLD.Get_rank())'"
-echo -e "\n$CMD\n"
-eval $CMD
-echo -e "\n MPI test complete\n"
-echo -e "\n--------------------------------------------------\n"
-
-echo -e "\nSimulation ends\n"
+echo -e "\nPyFR setup complete\n"

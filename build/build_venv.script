@@ -1,9 +1,3 @@
-BUILD_NAME=$1
-BUILD_TAG=$2
-
-export VENV_NAME="venv-${BUILD_NAME}-${BUILD_TAG}"
-export PYFR_NAME="pyfr-${BUILD_NAME}-${BUILD_TAG}"
-
 ml WebProxy
 
 setup_pyfr_venv_prerequisites(){

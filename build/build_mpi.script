@@ -1,20 +1,30 @@
-BUILD_NAME=$1
-NODE_NAME=$2
+BUILD_NAME_MPI=$1
+BUILD_TAG_MPI=$2
 BUILD_MPICH_VER=$3
 BUILD_UCX_VER=$4
 BUILD_OPENMPI_VER=$5
 
-BUILD_CLUSTER=aces
+if [ -f /sw/local/etc/clustername ]; then
+    K=$(cat /sw/local/etc/clustername)
+else
+    K="spitfire"
+fi
+
 BUILD_PARTITION=$SLURM_JOB_PARTITION
 BUILD_NP=$SLURM_NTASKS
 
 echo -e "\n================================================================="
-echo -e "BUILD_NAME: $BUILD_NAME"
-echo -e "NODE_NAME: $NODE_NAME"
-echo -e "BUILD_UCX_VER: $BUILD_UCX_VER"
-echo -e "BUILD_OPENMPI_VER: $BUILD_OPENMPI_VER"
 echo -e "BUILD_CLUSTER: $BUILD_CLUSTER"
 echo -e "BUILD_PARTITION: $BUILD_PARTITION"
+
+echo -e "BUILD_NAME_MPI: $BUILD_NAME_MPI"
+echo -e "BUILD_TAG_MPI: $BUILD_TAG_MPI"
+
+echo -e "BUILD_EASY_CUDA_VER: $BUILD_EASY_CUDA_VER"
+echo -e "BUILD_GCC_VER: $BUILD_GCC_VER"
+echo -e "BUILD_MPICH_VER: $BUILD_MPICH_VER"
+echo -e "BUILD_UCX_VER: $BUILD_UCX_VER"
+echo -e "BUILD_OPENMPI_VER: $BUILD_OPENMPI_VER"
 echo -e "BUILD_NP: $BUILD_NP"
 echo -e "=================================================================\n"
 
@@ -58,6 +68,17 @@ get_openmpi_pkg(){
     tar -xf openmpi-$BUILD_OPENMPI_VER.tar.gz ; rm openmpi-$BUILD_OPENMPI_VER.tar.gz
 }
 
+get_openmpi_git(){
+    mkdir -p $GIT_DOWNLOAD/openmpi ; cd $GIT_DOWNLOAD/openmpi
+    git clone --recursive https://github.com/open-mpi/ompi.git $GIT_DOWNLOAD/openmpi
+    cd $GIT_DOWNLOAD/openmpi
+    git checkout main
+    ./autogen.pl
+    python3 -m venv ompi-docs-venv
+    . ./ompi-docs-venv/bin/activate
+    pip3 install -r docs/requirements.txt
+}
+
 get_mpich_pkg(){
     mkdir -p $PKG_DOWNLOAD/mpich/$BUILD_MPICH_VER ; cd $PKG_DOWNLOAD/mpich/$BUILD_MPICH_VER
     wget https://www.mpich.org/static/downloads/$BUILD_MPICH_VER/mpich-$BUILD_MPICH_VER.tar.gz
@@ -69,7 +90,7 @@ get_mpich_pkg(){
 setup_ucx_pkg() {
     cd $PKG_DOWNLOAD/ucx/$BUILD_UCX_VER/ucx-$BUILD_UCX_VER
 
-    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER \
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
                      --enable-shared \
                      --enable-devel-headers \
                      --enable-cma \
@@ -86,7 +107,7 @@ setup_ucx_pkg() {
         elif [ "$BUILD_PARTITION" == "all" ]; then
             CMD="$CMD --with-cuda=/usr/local/cuda-12.2/"
         fi
-    elif [ "$BUILD_CLUSTER" == "faster" ] || { [ "$BUILD_CLUSTER" == "aces" ] && [ "$BUILD_PARTITION" == "gpu" ]; }; then
+    elif [ -n "$EBROOTCUDA" ]; then
         CMD="$CMD --with-cuda=$EBROOTCUDA"
     fi
     
@@ -101,10 +122,48 @@ setup_openmpi_pkg() {
     cd $PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER/openmpi-$BUILD_OPENMPI_VER
 
     # Common configuration options
-    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER} \
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
                      --enable-shared \
-                     --with-ucx=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER \
-                     --without-verbs \
+                     --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+                     --without-ofi \
+                     --with-slurm \
+                     --enable-heterogeneous \
+                     --disable-io-romio"
+
+    # Conditionally set the CUDA or ROCm paths
+    if [ "$BUILD_CLUSTER" == "spitfire" ]; then
+        if [ "$BUILD_PARTITION" == "amd" ]; then
+            CMD="$CMD --with-rocm=/opt/rocm-6.0.0/"
+        elif [ "$BUILD_PARTITION" == "all" ]; then
+            CMD="$CMD --with-cuda=/usr/local/cuda-12.2/ \
+                       --with-cuda-libdir=/usr/local/cuda-12.2/lib64/stubs/"
+        else
+            # ERROR
+            echo "ERROR: Unknown partition $BUILD_PARTITION on $BUILD_CLUSTER"
+        fi
+    elif [ -n "$EBROOTCUDA" ]; then
+        CMD="$CMD --with-cuda=$EBROOTCUDA \
+                   --with-cuda-libdir=$EBROOTCUDA/lib64/stubs/"
+    else
+        #ERROR
+        echo "ERROR: Unknown cluster $BUILD_CLUSTER"
+    fi
+
+    echo $CMD
+    eval $CMD
+    make clean
+    make -j $BUILD_NP
+    make install
+}
+
+setup_openmpi_git() {
+    cd $GIT_DOWNLOAD/openmpi
+    . ./ompi-docs-venv/bin/activate
+
+    # Common configuration options
+    CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi \
+                     --enable-shared \
+                     --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
                      --without-ofi"
 
     # Conditionally set the CUDA or ROCm paths
@@ -115,6 +174,8 @@ setup_openmpi_pkg() {
                    --with-cuda-libdir=/usr/local/cuda-12.2/lib64/stubs/"
     elif [ -n "$EBROOTCUDA" ]; then
         CMD="$CMD --with-cuda=$EBROOTCUDA"
+    else
+        CMD="$CMD --disable-io-romio"
     fi
 
     echo $CMD
@@ -127,15 +188,14 @@ setup_openmpi_pkg() {
 setup_mpich_pkg() {
     cd $PKG_DOWNLOAD/mpich/$BUILD_MPICH_VER/mpich-$BUILD_MPICH_VER
 
-    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/${BUILD_MPICH_VER} \
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/${BUILD_MPICH_VER} \
                  --enable-shared \
                  --with-device=ch4:ucx \
                  --with-pm=hydra \
                  --with-slurm \
                  --enable-fast=all,O3 \
-                 --enable-g=none \
-                 --enable-romio"
-        #        --with-ucx=$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER \
+                 --enable-g=none"
+        #        --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
         #        --without-libfabric \
         #        --with-ucx"
         #        --without-verbs \
@@ -153,24 +213,33 @@ if [ ! -d "$PKG_DOWNLOAD/mpich/$BUILD_mpich_VER" ]; then
     echo "Downloading MPICH" ; get_mpich_pkg
 fi
 
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/$BUILD_MPICH_VER" ]; then
-    echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
+if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ]; then
+    echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
 fi
 
 if [ ! -d "$PKG_DOWNLOAD/ucx/$BUILD_UCX_VER" ]; then
     echo "Downloading UCX" ; get_ucx_pkg
 fi
 
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ]; then
-    echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/ucx/$BUILD_UCX_VER" ; setup_ucx_pkg
+if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER" ]; then
+    echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER" ; setup_ucx_pkg
 fi
 
-add_installation_to_path ${BUILD_NAME}-${NODE_NAME}/ucx      $BUILD_UCX_VER     $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx      $BUILD_UCX_VER     $PKG_LOCAL
 
 if [ ! -d "$PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER" ]; then
     echo "Downloading OpenMPI" ; get_openmpi_pkg
 fi
 
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ]; then
-    echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME}-${NODE_NAME}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
+if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ]; then
+    echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
 fi
+
+#if [ ! -d "$GIT_DOWNLOAD/openmpi" ]; then
+#    echo "Downloading OpenMPI" ; get_openmpi_git
+#fi
+#
+#if [ ! -d "$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi" ]; then
+#    echo "Setting up OpenMPI in $GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi" ; setup_openmpi_git
+#fi
+#

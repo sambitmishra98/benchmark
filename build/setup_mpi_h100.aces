@@ -15,9 +15,6 @@
 #SBATCH --cpus-per-gpu=8
 #SBATCH --nodelist=ac036
 
-mkdir -p /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build2-openmpi-ac037
-cd /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build2-openmpi-ac037
-
 # ------------------------------------------------------------------------------
 # Check environment
 # ------------------------------------------------------------------------------
@@ -61,7 +58,7 @@ export BUILD_OPENMPI_VER=5.0.1
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/openmpi.build build2 ac037 1.15.0 4.1.6"
+CMD="$SCRATCH/EFFORT_BENCHMARK/benchmark/build/openmpi.build build2 ac037 1.15.0 4.1.6"
 echo -e "\n$CMD\n"
 eval $CMD
 
@@ -72,7 +69,7 @@ add_installation_to_path final-compute-amd/openmpi $BUILD_OPENMPI_VER $PKG_LOCAL
 # Test build with osu_microbenchmarks and other CUDA benchmarks
 # ------------------------------------------------------------------------------
 
-CMD="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build build2 ac037 4.1.6"
+CMD="$SCRATCH/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build build2 ac037 4.1.6"
 echo -e "\n$CMD\n"
 eval $CMD
 

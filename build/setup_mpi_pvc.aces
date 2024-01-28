@@ -17,17 +17,7 @@
 # Check environment
 # ------------------------------------------------------------------------------
 
-    #/sw/local/bin/query_gpu.sh
-
-    #nvidia-smi -L
-    clinfo -l
     source ~/.bashrc
-    echo -e "\n================================================================="
-
-    export BUILD_NAME="pvc"
-    export BUILD_TAG="aces"
-    export BUILD_PATH="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build"
-
 # ------------------------------------------------------------------------------
 # Print SLURM settings
 # ------------------------------------------------------------------------------
@@ -51,28 +41,29 @@
 
     setup_base
     export_all_versions
-    add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
+    add_installation_to_path gcc      $BUILD_GCC_VER     ${PKG_LOCAL}
 
 # ------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="${BUILD_PATH}/mpi.build ${BUILD_NAME} ${BUILD_TAG} ${BUILD_MPICH_VER} ${BUILD_UCX_VER} ${BUILD_OPENMPI_VER}"
+CMD="${BUILD_PATH}/mpi.build"
 echo -e "\n$CMD\n"
 eval $CMD
 
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/mpich     ${BUILD_MPICH_VER}     $PKG_LOCAL
-# add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/ucx     ${BUILD_UCX_VER}     $PKG_LOCAL
-# add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/openmpi ${BUILD_OPENMPI_VER} $PKG_LOCAL
+# ------------------------------------------------------------------------------
+# CHECK IF BUILD WAS SUCCESSFUL
+# ------------------------------------------------------------------------------
 
-which mpirun
-mpichversion
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich   ${BUILD_MPICH_VER}   ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx     ${BUILD_UCX_VER}     ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
 
 # ------------------------------------------------------------------------------
 # Test build with osu_microbenchmarks and other CUDA benchmarks
 # ------------------------------------------------------------------------------
 # 
-# CMD="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build build2 ac037 4.1.6"
+# CMD="$SCRATCH/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build build2 ac037 4.1.6"
 # echo -e "\n$CMD\n"
 # eval $CMD
 # 
