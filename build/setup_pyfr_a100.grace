@@ -1,16 +1,16 @@
 #!/bin/bash
-#SBATCH --job-name="venv-build"
-#SBATCH --nodes=1
+#SBATCH --job-name="PyFR-build"
+#SBATCH --nodes=2
 #SBATCH --exclusive
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
-#SBATCH --time=0-06:00:00
+#SBATCH --time=0-24:00:00
 #SBATCH --mem=80G
-#SBATCH --output=PyFR-build-PVC.out
+#SBATCH --output=PyFR-build-A100.out
 #SBATCH --no-requeue
-#SBATCH --partition=pvc
+#SBATCH --partition=gpu
 #SBATCH --ntasks=24
-#SBATCH --gres=gpu:pvc:4
+#SBATCH --gres=gpu:a100:2
 #SBATCH --cpus-per-gpu=12
 
 # ------------------------------------------------------------------------------
@@ -49,7 +49,8 @@
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  $BUILD_PYTHON_VER  $PKG_LOCAL
 
-    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich     $BUILD_MPICH_VER $PKG_LOCAL
+    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx     ${BUILD_UCX_VER}     ${PKG_LOCAL}
+    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
 
     add_optional_pyfr_dependencies
 
@@ -58,7 +59,7 @@
 # Setup PyFR
 # ------------------------------------------------------------------------------
 
-    CMD="${BUILD_PATH}/pyfr.build ${BUILD_NAME_VENV} ${BUILD_TAG_VENV} ${np}"
+    CMD="${BUILD_PATH}/build_scripts/build_pyfr.script 2"
     echo -e "\n$CMD\n"
     eval $CMD
 

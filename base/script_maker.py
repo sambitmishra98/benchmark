@@ -4,7 +4,7 @@ import numpy as np
 class ScriptMaker:
     def __init__(self, prefix = ''):
 
-        self.simulation_wait_time = '6' # in hours
+        self.simulation_wait_time = '24' # in hours
 
     def generate_slurm_script(self, prefix, nodelist, steps, backend, caware, order, precision, nodes, ntasks , etype, elems, partition, gpu):
 
@@ -35,12 +35,19 @@ class ScriptMaker:
             prerun=''
             postrun=''
 
-        if   partition == 'pvc' and gpu ==  'pvc': pass
-        elif partition == 'gpu' and gpu == 'h100': pass
-        elif partition == 'gpu' and gpu == 'a100': pass
-        elif partition == 'gpu' and gpu ==  'a40': pass
-        elif partition == 'gpu' and gpu ==  'a10': pass
-        elif partition == 'gpu' and gpu ==   't4': pass
+        if 'spitfire-ng' in nodelist:
+            GPUS=f'#SBATCH --gres=gpu:{int(np.ceil(ntasks/nodes))}'
+        else:
+            GPUS=f'#SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}'
+
+        if   partition == 'pvc' and gpu ==   'pvc': pass
+        elif partition == 'gpu' and gpu ==  'h100': pass
+        elif partition == 'gpu' and gpu ==  'a100': pass
+        elif partition == 'gpu' and gpu ==   'a40': pass
+        elif partition == 'gpu' and gpu ==   'a10': pass
+        elif partition == 'gpu' and gpu ==    't4': pass
+        elif partition == 'all' and gpu ==  'v100': pass
+        elif partition == 'amd' and gpu == 'mi100': pass
         else: raise ValueError(f"Partition {partition} not supported")
 
         job_name = f"{prefix}partition{partition}_nodelist{nodelist}_" \
@@ -60,7 +67,7 @@ class ScriptMaker:
 #SBATCH --no-requeue
 #SBATCH --partition={partition}
 #SBATCH --ntasks={ntasks}
-#SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}
+{GPUS}
 #SBATCH --cpus-per-gpu=2
 ##SBATCH --nodelist={nodelist}
 
