@@ -3,11 +3,12 @@ import numpy as np
 
 SCALING_TYPE = 'weak'
 BASE_ELEMENTS = 80
-BASE_PARTS_PER_NODE = 12
+BASE_PARTS_PER_NODE = 4
 
 # GLOBAL VARIABLES
-NODELIST = 'fc036'
-NSTEPS = 100
+PREFIX = 'spitfireWeak'
+NODELIST = 'spitfire-ng01'
+NSTEPS = 10000
 BACKEND = ['opencl', 'cuda']
 CAWARE = [0,1]
 ORDER = 3
@@ -16,14 +17,14 @@ PRECISION = 'double'
 #NPARTS_PER_NODE = 1
 ETYPE = 'hex'
 #NELEMENTS = 64
-PARTITION = 'gpu'
-GPU = 'h100'
+PARTITION = 'all'
+GPU = 'v100'
 
 # Create a csv file called config_weak.csv
 
 # ---------------------------------------------------
 
-c = pd.DataFrame(columns=['nodelist', 'nsteps', 'backend', 'caware', 'order', 'precision',
+c = pd.DataFrame(columns=['prefix','nodelist', 'nsteps', 'backend', 'caware', 'order', 'precision',
                             'nnodes', 'nparts-per-node', 
                             'etype', 'nelements', 
                             'partition', 'gpu',
@@ -45,7 +46,7 @@ c = pd.DataFrame(columns=['nodelist', 'nsteps', 'backend', 'caware', 'order', 'p
 # gpu = 'a100'
 
 # below is equal to [1,2,3,4,5,6,7,8]
-npnode_list = np.array([20,18,16,14,12,10,8,6,4,2,1])
+npnode_list = np.array([80,64,32,16,8,4,2,1])
 nnode_list = np.ones(len(npnode_list), dtype=int)
 
 if SCALING_TYPE == 'weak':
@@ -57,7 +58,7 @@ else:
 
 
 # Empty dataframe
-c = pd.DataFrame(columns=['nodelist', 'nsteps', 'backend', 'caware', 'order', 'precision',
+c = pd.DataFrame(columns=['prefix','nodelist', 'nsteps', 'backend', 'caware', 'order', 'precision',
                             'nnodes', 'nparts-per-node', 
                             'etype', 'nelements', 
                             'partition', 'gpu',
@@ -69,7 +70,8 @@ for backend in BACKEND:
         if backend == 'opencl' and caware == 1:
             continue
 
-        c = c._append(pd.DataFrame({'nodelist'           : [NODELIST]  * len(nnode_list),
+        c = c._append(pd.DataFrame({'prefix'             : [PREFIX]    * len(nnode_list),
+                                    'nodelist'           : [NODELIST]  * len(nnode_list),
                                     'nsteps'             : [NSTEPS]    * len(nnode_list),
                                         'backend'        : [backend]   * len(nnode_list),
                                         'caware'         : [caware]    * len(nnode_list),

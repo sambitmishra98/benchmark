@@ -1,8 +1,7 @@
-
 if [ -f /sw/local/etc/clustername ]; then
-    K=$(cat /sw/local/etc/clustername)
+    BUILD_CLUSTER=$(cat /sw/local/etc/clustername)
 else
-    K="spitfire"
+    BUILD_CLUSTER="spitfire"
 fi
 
 BUILD_PARTITION=$SLURM_JOB_PARTITION
@@ -116,14 +115,68 @@ setup_ucx_pkg() {
 setup_openmpi_pkg() {
     cd $PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER/openmpi-$BUILD_OPENMPI_VER
 
-    # Common configuration options
+    # SPITFIRE TRY 1: FAILED with the same TCP problem
     CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
                      --enable-shared \
                      --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
                      --without-ofi \
+                     --without-libfabric \
                      --with-slurm \
                      --enable-heterogeneous \
                      --disable-io-romio"
+# 
+#     # SPITFIRE TRY 2: FAILED with the same TCP problem
+#     CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
+#                      --enable-shared \
+#                      --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+#                      --without-ofi \
+#                      --disable-io-romio"
+# 
+#     # SPITFIRE TRY 3: OPENMPI 5.0.1 CANNOT USE --with-pmi flag
+#     CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
+#                      --enable-shared \
+#                      --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+#                      --with-pmi \
+#                      --with-slurm"
+
+
+#      # SPITFIRE TRY 5: OpenMPI 4.1.6 for Spitfire, FAILED BECAUSE OF LIBFABRIC PROBLEM
+#      CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
+#                       --enable-shared \
+#                       --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+#                       --without-ofi \
+#                       --without-libfabric \
+#                       --without-verbs \
+#                       --with-slurm \
+#                       --with-pmi \
+#                       --enable-heterogeneous \
+#                       --disable-io-romio"
+#  
+#     # SPITFIRE TRY 4: OpenMPI 4.1.6 AND --without-verbs flag IS CRITICAL
+#     CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
+#                      --enable-shared \
+#                      --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+#                      --without-ofi \
+#                      --without-libfabric \
+#                      --without-verbs \
+#                      --with-slurm \
+#                      --with-pmi \
+#                      --enable-heterogeneous \
+#                      --disable-io-romio"
+ 
+# Maybe all this issue because openib and libfabric and spitfire are together? 
+# Or maybe spitfire has to work with pmi which is only there in openmpi 4.1.6? 
+
+
+#    # Common configuration options
+#    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
+#                     --enable-shared \
+#                     --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+#                     --without-ofi \
+#                     --disable-io-romio"
+#                     --with-slurm \
+#                     --enable-heterogeneous \
+ 
 
     # Conditionally set the CUDA or ROCm paths
     if [ "$BUILD_CLUSTER" == "spitfire" ]; then
@@ -147,34 +200,34 @@ setup_openmpi_pkg() {
     make install
 }
 
-setup_openmpi_git() {
-    cd $GIT_DOWNLOAD/openmpi
-    . ./ompi-docs-venv/bin/activate
-
-    # Common configuration options
-    CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi \
-                     --enable-shared \
-                     --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
-                     --without-ofi \
-                     --disable-io-romio"
-
-    # Conditionally set the CUDA or ROCm paths
-    if [ "$BUILD_PARTITION" == "amd" ]; then
-        CMD="$CMD --with-rocm=/opt/rocm-6.0.0/"
-    elif [ "$BUILD_PARTITION" == "all" ]; then
-        CMD="$CMD --with-cuda=/usr/local/cuda-12.2/ \
-                   --with-cuda-libdir=/usr/local/cuda-12.2/lib64/stubs/"
-    elif [ -n "$EBROOTCUDA" ]; then
-        CMD="$CMD --with-cuda=$EBROOTCUDA \
-                   --with-cuda-libdir=$EBROOTCUDA/lib64/stubs/"
-    fi
-
-    echo $CMD
+# setup_openmpi_git() {
+#     cd $GIT_DOWNLOAD/openmpi
+#     . ./ompi-docs-venv/bin/activate
+# 
+#     # Common configuration options
+#     CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi \
+#                      --enable-shared \
+#                      --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+#                      --without-ofi \
+#                      --disable-io-romio"
+# 
+#     # Conditionally set the CUDA or ROCm paths
+#     if [ "$BUILD_PARTITION" == "amd" ]; then
+#         CMD="$CMD --with-rocm=/opt/rocm-6.0.0/"
+#     elif [ "$BUILD_PARTITION" == "all" ]; then
+#         CMD="$CMD --with-cuda=/usr/local/cuda-12.2/ \
+#                    --with-cuda-libdir=/usr/local/cuda-12.2/lib64/stubs/"
+#     elif [ -n "$EBROOTCUDA" ]; then
+#         CMD="$CMD --with-cuda=$EBROOTCUDA \
+#                    --with-cuda-libdir=$EBROOTCUDA/lib64/stubs/"
+#     fi
+# 
+#     echo $CMD
 #    eval $CMD
 #    make clean
 #    make -j $BUILD_NP
 #    make install
-}
+#}
 
 setup_mpich_pkg() {
     cd $PKG_DOWNLOAD/mpich/$BUILD_MPICH_VER/mpich-$BUILD_MPICH_VER
@@ -194,13 +247,17 @@ setup_mpich_pkg() {
 #    make install
 }
 
-if [ ! -d "$PKG_DOWNLOAD/mpich/$BUILD_mpich_VER" ]; then
-    echo "Downloading MPICH" ; get_mpich_pkg
-fi
 
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ]; then
-    echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
-fi
+
+
+
+# if [ ! -d "$PKG_DOWNLOAD/mpich/$BUILD_mpich_VER" ]; then
+#     echo "Downloading MPICH" ; get_mpich_pkg
+# fi
+# 
+# if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ]; then
+#     echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
+# fi
 
 if [ ! -d "$PKG_DOWNLOAD/ucx/$BUILD_UCX_VER" ]; then
     echo "Downloading UCX" ; get_ucx_pkg
@@ -219,12 +276,6 @@ fi
 if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ]; then
     echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
 fi
-
-
-
-
-
-
 
 #if [ ! -d "$GIT_DOWNLOAD/openmpi" ]; then
 #    echo "Downloading OpenMPI" ; get_openmpi_git

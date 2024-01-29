@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name="ompi-build"
+#SBATCH --job-name="MPI-build2"
 #SBATCH --nodes=2
 #SBATCH --exclusive
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=openmpi-build-cuda.out
+#SBATCH --output=MPI-build2-CUDA.out
 #SBATCH --no-requeue
 #SBATCH --partition=all
 #SBATCH --ntasks=8
@@ -19,15 +19,7 @@
 
 . /etc/profile.d/modules.sh
 module purge
-
-#rocm-smi
-nvidia-smi
-
 source ~/.bashrc
-echo -e "\n================================================================="
-
-export BUILD_NAME="cuda"
-export BUILD_TAG="ng11"
 
 # ------------------------------------------------------------------------------
 # Print SLURM settings
@@ -50,9 +42,7 @@ export BUILD_TAG="ng11"
 # Setup paths
 # ------------------------------------------------------------------------------
 
-    setup_base
-    export_all_versions
-#    add_installation_to_path rocm-6.0.0 ""             "/opt"
+    BUILD_V100_2024_01_28_ENV
     add_installation_to_path  cuda-12.2  ""             "/usr/local/"
     add_installation_to_path  gcc        $BUILD_GCC_VER $PKG_LOCAL
 
@@ -60,15 +50,13 @@ export BUILD_TAG="ng11"
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="${BUILD_PATH}/openmpi.build ${BUILD_NAME} ${BUILD_TAG} ${BUILD_UCX_VER} ${BUILD_OPENMPI_VER}"
+CMD="${BUILD_PATH}/build_scripts/build_mpi.script"
 echo -e "\n$CMD\n"
 eval $CMD
 
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/ucx     ${BUILD_UCX_VER}     $PKG_LOCAL
-add_installation_to_path ${BUILD_NAME}-${BUILD_TAG}/openmpi ${BUILD_OPENMPI_VER} $PKG_LOCAL
-
-which mpirun
-ompi_info
+#add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich   ${BUILD_MPICH_VER}   ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx     ${BUILD_UCX_VER}     ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
 
 # ------------------------------------------------------------------------------
 # Test build with osu_microbenchmarks and other CUDA benchmarks

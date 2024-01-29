@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name="venv-build"
+#SBATCH --job-name="Venv-build"
 #SBATCH --nodes=2
 #SBATCH --exclusive
 #SBATCH --gpu-bind=closest
@@ -17,24 +17,9 @@
 # Check environment
 # ------------------------------------------------------------------------------
 
-    . /etc/profile.d/modules.sh
-    module purge
-
-    rocm-smi
-    # nvidia-smi -L ; clinfo -l
-    source ~/.bashrc
-    echo -e "\n================================================================="
-
-    export BUILD_NAME="cuda"
-    export BUILD_TAG="ng11"
-
-    export BUILD_NAME_PYTHON="build3"
-    export BUILD_TAG_PYTHON="ac038"
-
-    export BUILD_NAME_OMPI="cuda"
-    export BUILD_TAG_OMPI="ng11"
-
-    export BUILD_PATH="/mnt/share/sambit98/EFFORT_BENCHMARK/benchmark/build"
+. /etc/profile.d/modules.sh
+module purge
+source ~/.bashrc
 
 # ------------------------------------------------------------------------------
 # Print SLURM settings
@@ -57,29 +42,27 @@
 # Setup paths
 # ------------------------------------------------------------------------------
 
-    setup_base
-    export_all_versions
-#    add_installation_to_path rocm-6.0.0 ""             "/opt"
+    BUILD_V100_2024_01_28_ENV
     add_installation_to_path  cuda-12.2  ""             "/usr/local/"
-    add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
+    add_installation_to_path  gcc        $BUILD_GCC_VER $PKG_LOCAL
 
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi  $BUILD_LIBFFI_VER  $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl $BUILD_OPENSSL_VER $PKG_LOCAL
     add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  $BUILD_PYTHON_VER  $PKG_LOCAL
 
-    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/ucx         $BUILD_UCX_VER     $PKG_LOCAL
-    add_installation_to_path ${BUILD_NAME_OMPI}-${BUILD_TAG_OMPI}/openmpi     $BUILD_OPENMPI_VER $PKG_LOCAL
+    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx         $BUILD_UCX_VER     $PKG_LOCAL
+    add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi     $BUILD_OPENMPI_VER $PKG_LOCAL
 
 # ------------------------------------------------------------------------------
 # Setup venv
 # ------------------------------------------------------------------------------
 
 
-    CMD="${BUILD_PATH}/venv.build ${BUILD_NAME} ${BUILD_TAG}"
+    CMD="${BUILD_PATH}/build_scripts/build_venv.script"
     echo -e "\n$CMD\n"
     eval $CMD
 
-    source $VENV_LOCAL/venv-${BUILD_NAME}-${BUILD_TAG}/bin/activate
+    source $VENV_LOCAL/venv-${BUILD_NAME_VENV}-${BUILD_TAG_VENV}/bin/activate
 
 # A simple Hello-world test for mpi4py in venv
 echo -e "\n--------------------------------------------------\n"

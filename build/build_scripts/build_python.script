@@ -1,4 +1,4 @@
-export MAKE_NP=48
+export MAKE_NP=32
 
 add_installation_to_path() {
     local name=$1
@@ -53,7 +53,7 @@ setup_libffi_pkg(){
     cd $PKG_DOWNLOAD/libffi/$BUILD_LIBFFI_VER/libffi-$BUILD_LIBFFI_VER
     CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi/$BUILD_LIBFFI_VER" ; echo $CMD
     eval $CMD
-    make clean ; make -j 32
+    make clean ; make -j $MAKE_NP
     make install
 }
 
@@ -61,7 +61,7 @@ setup_openssl_pkg(){
     cd $PKG_DOWNLOAD/openssl/$BUILD_OPENSSL_VER/openssl-$BUILD_OPENSSL_VER
     CMD="./config --prefix=$PKG_LOCAL/${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl/$BUILD_OPENSSL_VER" ; echo $CMD
     eval $CMD
-    make clean ; make -j 32
+    make clean ; make -j $MAKE_NP
     make install
 }
 
