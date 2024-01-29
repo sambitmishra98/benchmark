@@ -5,7 +5,7 @@ import pandas as pd
 MEAN_OVER_TIMESTEPS = 10000
 
 PATTERN = re.compile(
-    r'(\w+)partition(pvc|gpu)_gpu(pvc|h100|a100)_nodelist(\w+)_steps(\d+)_backend(cuda|opencl|openmp|hip|metal)_caware(0|1)_order(\d+)_precision(single|double)_nodes(\d+)_tasks(\d+)_(hex|tet|pri|pyr)(\d+)'
+    r'(\w+)partition(all|amd|pvc|gpu)_gpu(pvc|h100|a100|v100|mi100)_nodelist([\w-]+)_steps(\d+)_backend(cuda|opencl|openmp|hip|metal)_caware(0|1)_order(\d+)_precision(single|double)_nodes(\d+)_tasks(\d+)_(hex|tet|pri|pyr)(\d+)'
 )
 
 DOF_DAT_FILE_NAME = 'degrees_of_freedom.dat'
@@ -21,6 +21,7 @@ def parse_location(location):
     if match:
         return match.groups()
     else:
+        print
         raise ValueError('Unknown format in location: ' + location)
 
 def gather_data(root_dir, prefix=''):

@@ -18,10 +18,10 @@ class ScriptMaker:
 
         mpi_lib = 'mpich'   # Use MPICH everywhere
         #export MPIR_CVAR_ENABLE_GPU=1 ; 
-        if   backend ==   'cuda': ompi_mca = f'--mca accelerator cuda' #
-        elif backend ==    'hip': ompi_mca = f'--mca accelerator rocm' #
-        elif backend == 'opencl': ompi_mca = f'--mca accelerator null' #
-        elif backend == 'openmp': ompi_mca = f'--mca accelerator null' #
+        if   backend ==   'cuda': pass
+        elif backend ==    'hip': pass
+        elif backend == 'opencl': pass
+        elif backend == 'openmp': pass
         elif backend in ['metal']: 
             raise ValueError(f"Backend {backend} yet to be supported")
         else: 
@@ -58,7 +58,6 @@ class ScriptMaker:
 #SBATCH --job-name="{job_name}"
 #SBATCH --nodes={nodes}
 ##SBATCH --exclusive
-##SBATCH --reservation=r3_debugging
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-{self.simulation_wait_time}:00:00
@@ -73,11 +72,11 @@ class ScriptMaker:
 
 source ~/.bashrc
 
-CMD="/sw/local/bin/query_gpu.sh ; nvidia-smi"; echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";
-eval $CMD;
-
-CMD="clinfo -l"; echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; 
-eval $CMD;
+# CMD="/sw/local/bin/query_gpu.sh ; nvidia-smi"; echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";
+# eval $CMD;
+# 
+# CMD="clinfo -l"; echo -e "\\nExecuting command:\\n==================\\n$CMD\\n"; 
+# eval $CMD;
 
 numnodes=$SLURM_JOB_NUM_NODES
 mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\\([0-9][0-9]*\\).*$/\\1/')
@@ -100,7 +99,7 @@ echo "PYFR_METIS_LIBRARY_PATH=$PYFR_METIS_LIBRARY_PATH"
 echo "PYFR_CLBLAST_LIBRARY_PATH=$PYFR_CLBLAST_LIBRARY_PATH"
 
 # Run subscript
-    CMD="time mpirun {ompi_mca} -n {ntasks} pyfr run -b {backend} $meshf $inif"
+    CMD="time mpirun --mca pml ucx -n {ntasks} pyfr run -b {backend} $meshf $inif"
     echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";
     eval $CMD;
 
