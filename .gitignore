@@ -18,3 +18,5 @@ output.csv
 *degrees_of_freedom.dat
 *perf*.csv
 *.pyfrs
+
+OLD_*
