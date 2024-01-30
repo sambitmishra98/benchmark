@@ -40,14 +40,14 @@ class ScriptMaker:
         else:
             GPUS=f'#SBATCH --gres=gpu:{gpu}:{int(np.ceil(ntasks/nodes))}'
 
-        if   partition == 'pvc' and gpu ==   'pvc': pass
-        elif partition == 'gpu' and gpu ==  'h100': pass
-        elif partition == 'gpu' and gpu ==  'a100': pass
-        elif partition == 'gpu' and gpu ==   'a40': pass
-        elif partition == 'gpu' and gpu ==   'a10': pass
-        elif partition == 'gpu' and gpu ==    't4': pass
-        elif partition == 'all' and gpu ==  'v100': pass
-        elif partition == 'amd' and gpu == 'mi100': pass
+        if   partition == 'pvc' and gpu ==   'pvc': extra_flags=""
+        elif partition == 'gpu' and gpu ==  'h100': extra_flags=""
+        elif partition == 'gpu' and gpu ==  'a100': extra_flags=""
+        elif partition == 'gpu' and gpu ==   'a40': extra_flags=""
+        elif partition == 'gpu' and gpu ==   'a10': extra_flags=""
+        elif partition == 'gpu' and gpu ==    't4': extra_flags=""
+        elif partition == 'all' and gpu ==  'v100': extra_flags="--mca pml ucx"
+        elif partition == 'amd' and gpu == 'mi100': extra_flags="--mca pml ucx"
         else: raise ValueError(f"Partition {partition} not supported")
 
         job_name = f"{prefix}partition{partition}_nodelist{nodelist}_" \
@@ -99,7 +99,7 @@ echo "PYFR_METIS_LIBRARY_PATH=$PYFR_METIS_LIBRARY_PATH"
 echo "PYFR_CLBLAST_LIBRARY_PATH=$PYFR_CLBLAST_LIBRARY_PATH"
 
 # Run subscript
-    CMD="time mpirun --mca pml ucx -n {ntasks} pyfr run -b {backend} $meshf $inif"
+    CMD="time mpirun {extra_flags} -n {ntasks} pyfr run -b {backend} $meshf $inif"
     echo -e "\\nExecuting command:\\n==================\\n$CMD\\n";
     eval $CMD;
 

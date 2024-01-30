@@ -17,7 +17,7 @@ echo -e "BUILD_TAG_MPI: $BUILD_TAG_MPI"
 echo -e "BUILD_EASY_CUDA_VER: $BUILD_EASY_CUDA_VER"
 echo -e "BUILD_GCC_VER: $BUILD_GCC_VER"
 echo -e "BUILD_MPICH_VER: $BUILD_MPICH_VER"
-echo -e "BUILD_UCX_VER: $BUILD_UCX_VER"
+echo -e "BUILD_UCX_VER: ${BUILD_UCX_VER}"
 echo -e "BUILD_OPENMPI_VER: $BUILD_OPENMPI_VER"
 echo -e "BUILD_NP: $BUILD_NP"
 echo -e "=================================================================\n"
@@ -51,9 +51,9 @@ add_installation_to_path() {
 # --------------------- GETS ---------------------
 
 get_ucx_pkg(){     
-    mkdir -p $PKG_DOWNLOAD/ucx/$BUILD_UCX_VER ; cd $PKG_DOWNLOAD/ucx/$BUILD_UCX_VER
-    wget https://github.com/openucx/ucx/releases/download/v$BUILD_UCX_VER/ucx-$BUILD_UCX_VER.tar.gz
-    tar -xf ucx-$BUILD_UCX_VER.tar.gz ; rm ucx-$BUILD_UCX_VER.tar.gz
+    mkdir -p $PKG_DOWNLOAD/ucx/${BUILD_UCX_VER} ; cd $PKG_DOWNLOAD/ucx/${BUILD_UCX_VER}
+    wget https://github.com/openucx/ucx/releases/download/v${BUILD_UCX_VER}/ucx-${BUILD_UCX_VER}.tar.gz
+    tar -xf ucx-${BUILD_UCX_VER}.tar.gz ; rm ucx-${BUILD_UCX_VER}.tar.gz
 }
 
 get_openmpi_pkg(){
@@ -82,9 +82,9 @@ get_mpich_pkg(){
 # --------------------- SETUPS ---------------------
 
 setup_ucx_pkg() {
-    cd $PKG_DOWNLOAD/ucx/$BUILD_UCX_VER/ucx-$BUILD_UCX_VER
+    cd $PKG_DOWNLOAD/ucx/${BUILD_UCX_VER}/ucx-${BUILD_UCX_VER}
 
-    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+    CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER} \
                      --enable-shared \
                      --enable-devel-headers \
                      --enable-cma \
@@ -118,7 +118,7 @@ setup_openmpi_pkg() {
     # SPITFIRE TRY 1: FAILED with the same TCP problem
     CMD="./configure --prefix=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER} \
                      --enable-shared \
-                     --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER \
+                     --with-ucx=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER} \
                      --without-ofi \
                      --without-libfabric \
                      --with-slurm \
@@ -177,6 +177,11 @@ setup_openmpi_pkg() {
 #                     --with-slurm \
 #                     --enable-heterogeneous \
  
+
+#                   For OpenMPI 4.1.6, we also need the following
+#                     --with-pmi \
+#                     --without-libfabric \
+#                     --without-verbs \
 
     # Conditionally set the CUDA or ROCm paths
     if [ "$BUILD_CLUSTER" == "spitfire" ]; then
@@ -247,27 +252,39 @@ setup_mpich_pkg() {
 #    make install
 }
 
+setup_osu_micro_benchmarks(){
+    setup_base
+    export_all_versions
+    cd $GIT_DOWNLOAD/osu-micro-benchmarks/osu-micro-benchmarks
+    CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks \
+                     --enable-cuda \
+                     --with-cuda=$EBROOTCUDA \
+                      CC=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicc\
+                     CXX=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicxx"
+    echo $CMD
+    eval $CMD
+    make clean
+    make -j $BUILD_NP
+    make install
+}
 
+#if [ ! -d "$PKG_DOWNLOAD/mpich/$BUILD_mpich_VER" ]; then
+#    echo "Downloading MPICH" ; get_mpich_pkg
+#fi
+#
+#if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ]; then
+#    echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
+#fi
 
-
-
-# if [ ! -d "$PKG_DOWNLOAD/mpich/$BUILD_mpich_VER" ]; then
-#     echo "Downloading MPICH" ; get_mpich_pkg
-# fi
-# 
-# if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ]; then
-#     echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
-# fi
-
-if [ ! -d "$PKG_DOWNLOAD/ucx/$BUILD_UCX_VER" ]; then
+if [ ! -d "$PKG_DOWNLOAD/ucx/${BUILD_UCX_VER}" ]; then
     echo "Downloading UCX" ; get_ucx_pkg
 fi
 
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER" ]; then
-    echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/$BUILD_UCX_VER" ; setup_ucx_pkg
+if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER}" ]; then
+    echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER}" ; setup_ucx_pkg
 fi
 
-add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx      $BUILD_UCX_VER     $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx      ${BUILD_UCX_VER}     $PKG_LOCAL
 
 if [ ! -d "$PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER" ]; then
     echo "Downloading OpenMPI" ; get_openmpi_pkg
@@ -277,11 +294,12 @@ if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI
     echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
 fi
 
-#if [ ! -d "$GIT_DOWNLOAD/openmpi" ]; then
-#    echo "Downloading OpenMPI" ; get_openmpi_git
-#fi
-#
-#if [ ! -d "$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi" ]; then
-#    echo "Setting up OpenMPI in $GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi" ; setup_openmpi_git
-#fi
-#
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
+
+if [ ! -d "$GIT_DOWNLOAD/osu-micro-benchmarks/osu-micro-benchmarks" ]; then
+    echo "Downloading OSU Microbenchmarks" ; get_osu_microbenchmarks
+fi
+
+if [ ! -d "$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks" ]; then
+    echo "Setting up OpenMPI in $GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks" ; setup_osu_micro_benchmarks
+fi

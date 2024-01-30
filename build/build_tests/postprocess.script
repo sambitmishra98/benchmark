@@ -1,0 +1,22 @@
+input_file=$1
+output_file=$2
+
+# Extract the node name and date
+node_name=$(grep -m 1 'Running on master node' $input_file | awk '{print $5}')
+sim_date=$(grep -m 1 'Time' $input_file | awk '{print $2, $3, $4, $5, $6}')
+
+# Extract maximum bandwidth for each combination and write to CSV
+echo "nodes,gpus-per-node,send,recv,bandwidth(MB/s),Bi-directional-bandwidth(MB/s)" > $output_file
+
+grep -A 22 "Send Buffer on HOST (H) and Receive Buffer on HOST (H)"     $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Host,Host,"max}' >> $output_file
+grep -A 22 "Send Buffer on DEVICE (D) and Receive Buffer on HOST (H)"   $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Device,Host,"max}' >> $output_file
+grep -A 22 "Send Buffer on HOST (H) and Receive Buffer on DEVICE (D)"   $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Host,Device,"max}' >> $output_file
+grep -A 22 "Send Buffer on DEVICE (D) and Receive Buffer on DEVICE (D)" $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Device,Device,"max}' >> $output_file
+
+grep -A 150 "Send Buffer on HOST (H) and Receive Buffer on HOST (H)"     $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Host,Host,"max}' >> $output_file
+grep -A 150 "Send Buffer on DEVICE (D) and Receive Buffer on HOST (H)"   $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Device,Host,"max}' >> $output_file
+grep -A 217 "Send Buffer on HOST (H) and Receive Buffer on DEVICE (D)"   $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Host,Device,"max}' >> $output_file
+grep -A 249 "Send Buffer on DEVICE (D) and Receive Buffer on DEVICE (D)" $input_file | awk 'NR>2 {if($2+0 > max) max=$2} END {print "1,2,Device,Device,"max}' >> $output_file
+
+# Repeat the process for Bi-Directional Bandwidth sections
+

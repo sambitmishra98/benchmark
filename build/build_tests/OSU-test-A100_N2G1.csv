@@ -1,0 +1,9 @@
+nodes,gpus-per-node,send,recv,bandwidth(MB/s),Bi-directional-bandwidth(MB/s)
+1,2,Host,Host,1858.98
+1,2,Device,Host,1567.24
+1,2,Host,Device,1398.96
+1,2,Device,Device,1303.92
+1,2,Host,Host,1875.17
+1,2,Device,Host,1858.98
+1,2,Host,Device,1858.98
+1,2,Device,Device,1858.98

@@ -1,0 +1,9 @@
+file,nodes,gpus-per-node,D-or-H,D-or-H,bw
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N1G2.out,1,2,H,H,4974.47
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N1G2.out,1,2,D,H,N/A
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N1G2.out,1,2,D,D,N/A
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N1G2.out,1,2,H,D,4286.92
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N2G1.out,2,1,H,H,1858.98
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N2G1.out,2,1,D,H,N/A
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N2G1.out,2,1,D,D,N/A
+/scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests/OSU-test-A100_N2G1.out,2,1,H,D,1398.96
