@@ -10,12 +10,26 @@ if len(sys.argv) != 2:
     
 input_file = sys.argv[1]
 
+# If the input_file contains the strong 'ACES'
+if 'ACES' in input_file:
+    cluster='ACES'
+elif 'Spitfire' in input_file:
+    cluster='Spitfire'
+else:
+    raise ValueError(f"Cluster not supported")
+
+if 'V100' in input_file:
+    GPU='V100'
+    GPUs_per_node=4
+elif 'PVC' in input_file:
+    GPU='PVC'
+    GPUs_per_node=4
+else:
+    raise ValueError(f"GPU not supported")
+
 # Read the input file
 
 # Set the aesthetics for the plot
-sns.set_style('whitegrid')
-sns.set_context("paper", font_scale=1.4)
-
 sns.set_style('whitegrid')
 sns.set_context("paper", font_scale=1.5)
 sns.set_palette("colorblind")
@@ -53,12 +67,10 @@ for backend, df_backend in df.groupby('backend'):
 
 #ax.hlines(1, 0, df['Tasks'].max(), colors='k', linestyles='dashed', label='Ideal scaling')
 
-first_entry = df.iloc[0]['mean-perf']/1e9
-
 #ax.plot(df['elements'], first_entry/df['mean-perf'], 'o-', label='Single GPU')
 
 ax.set_title(r'$\mathbf{Single-GPU\ scaling}$'+'\n'+
-                'Cluster: Spitfire, GPU: NVIDIA A100\n'+
+                f'Cluster: {cluster}, {GPUs_per_node} {GPU} GPUs per node\n'+
                 'Solver: PyFR 1.15.0 Jan 28th develop version')
 
 ax.set_xlabel('Cuberoot of total number of hexahedral elements')
@@ -72,9 +84,11 @@ ax.set_ylabel('Performance (GDoF/s)')
 #ax.set_ylabel('Performance metric\n'
 #                'Computations performed per unit runtime per GPU \n '
 #                '(GigaDegrees of Freedom per second per GPU â¡ GDoF/s/GPU)')
-ax.set_ylim(bottom=0)
+ax.set_ylim(bottom=0, top=1.7)
 
-ax.legend()
+
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
+          fancybox=True, shadow=True, ncol=3)
 
 # Create a NOTE box below the plot
 
@@ -89,4 +103,4 @@ ax.legend()
 #         verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
 # Save
-plt.savefig(f'Spitfire-V100_SingleGPUScaling.png', dpi=300, bbox_inches='tight')
+plt.savefig(f'{cluster}-{GPU}_SingleGPUScaling.png', dpi=300, bbox_inches='tight')
