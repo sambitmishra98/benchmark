@@ -257,10 +257,21 @@ setup_osu_micro_benchmarks(){
     export_all_versions
     cd $GIT_DOWNLOAD/osu-micro-benchmarks/osu-micro-benchmarks
     CMD="./configure --prefix=$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks \
-                     --enable-cuda \
-                     --with-cuda=$EBROOTCUDA \
-                      CC=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicc\
+                     CC=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicc\
                      CXX=$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}/bin/mpicxx"
+                     --enable-cuda \
+                     --with-cuda=$EBROOTCUDA
+
+    if [ "$BUILD_CLUSTER" == "spitfire" ]; then
+        if [ "$BUILD_PARTITION" == "all" ]; then
+            CMD="$CMD --enable-cuda \
+                      --with-cuda=/usr/local/cuda-12.2/"
+        fi
+    elif [ -n "$EBROOTCUDA" ]; then
+        CMD="$CMD --enable-cuda \
+                  --with-cuda=$EBROOTCUDA"
+    fi
+
     echo $CMD
     eval $CMD
     make clean

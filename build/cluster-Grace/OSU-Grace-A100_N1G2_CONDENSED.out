@@ -1,0 +1,141 @@
+Running on master node: g057.cluster
+Time: Tue Jan 30 11:49:46 CST 2024
+Current directory: /scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build/build_tests
+JobID: 9622106
+=================================================================
+Tasks=2,            nodes=1,             mpi_tasks_per_node=2             (OMP_NUM_THREADS=1)
+Virtual environments:
+	 
+	 
+	  
+	 
+	 
+[32mAdding gcc installation at /scratch/user/sambit98/.local-grace1/pkg/gcc/12.3.0 to PATH[0m
+[32mAdding a100-grace/ucx installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/ucx/1.15.0 to PATH[0m
+[32mAdding a100-grace/openmpi installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/openmpi/5.0.1 to PATH[0m
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+4194304              4104.49
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+4194304              4496.81
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+4194304              2939.44
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+4194304              3889.98
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on MANAGED (M)
+# Size      Bandwidth (MB/s)
+4194304              1849.97
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on MANAGED (M)
+# Size      Bandwidth (MB/s)
+4194304              2762.46
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+4194304              5142.85
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+4194304              4076.99
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+4194304            383975.76
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+4194304            481924.83
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on MANAGED (M)
+# Size      Bandwidth (MB/s)
+4194304              3995.42
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on MANAGED (M)
+# Size      Bandwidth (MB/s)
+4194304              3878.28
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on MANAGED (M) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+4194304              4870.28
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on MANAGED (M) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+4194304              2789.08
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on MANAGED (M) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+4194304              4126.97
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on MANAGED (M) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+4194304              3940.77
+
+=================================================================
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on MANAGED (M) and Receive Buffer on MANAGED (M)
+# Size      Bandwidth (MB/s)
+4194304               386.80
+
+=================================================================
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on MANAGED (M) and Receive Buffer on MANAGED (M)
+# Size      Bandwidth (MB/s)
+4194304               384.03

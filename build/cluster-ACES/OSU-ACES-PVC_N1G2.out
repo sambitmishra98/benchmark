@@ -1,0 +1,78 @@
+Running on master node: ac031
+Time: Tue Jan 30 17:09:40 CST 2024
+Current directory: /scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/cluster-ACES
+JobID: 106806
+=================================================================
+Tasks=2,            nodes=1,             mpi_tasks_per_node=2             (OMP_NUM_THREADS=1)
+ Essential libraries built:
+[32mAdding gcc installation at /scratch/user/u.sm121949/.local/pkg/gcc/12.3.0 to PATH[0m
+[32mAdding curl installation at /scratch/user/u.sm121949/.local/pkg/curl/8.5.0 to PATH[0m
+[32mAdding git installation at /scratch/user/u.sm121949/.local/pkg/git/2.43.0 to PATH[0m
+[32mAdding pvc-aces/libffi installation at /scratch/user/u.sm121949/.local/pkg/pvc-aces/libffi/3.4.4 to PATH[0m
+[32mAdding pvc-aces/openssl installation at /scratch/user/u.sm121949/.local/pkg/pvc-aces/openssl/1.1.1w to PATH[0m
+[32mAdding pvc-aces/python installation at /scratch/user/u.sm121949/.local/pkg/pvc-aces/python/3.12.1 to PATH[0m
+[32mAdding pvc-aces/ucx installation at /scratch/user/u.sm121949/.local/pkg/pvc-aces/ucx/1.15.0 to PATH[0m
+[32mAdding pvc-aces/openmpi installation at /scratch/user/u.sm121949/.local/pkg/pvc-aces/openmpi/5.0.1 to PATH[0m
+Added OpenCL paths
+Adding optional dependencies for PyFR
+[32mAdding gcc installation at /scratch/user/u.sm121949/.local/pkg/gcc/12.3.0 to PATH[0m
+[32mAdding pvc-aces/ucx installation at /scratch/user/u.sm121949/.local/pkg/pvc-aces/ucx/1.15.0 to PATH[0m
+[32mAdding pvc-aces/openmpi installation at /scratch/user/u.sm121949/.local/pkg/pvc-aces/openmpi/5.0.1 to PATH[0m
+
+=================================================================
+
+mpirun -n 2 /scratch/user/u.sm121949/.local/git/pvc-aces/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
+# OSU MPI Bandwidth Test v5.3
+# Size      Bandwidth (MB/s)
+1                       4.48
+2                       8.94
+4                      17.93
+8                      35.82
+16                     76.95
+32                    146.15
+64                    303.71
+128                   283.51
+256                   582.62
+512                   525.14
+1024                 1275.93
+2048                 1844.94
+4096                 5566.98
+8192                 8471.43
+16384               12597.71
+32768               13653.88
+65536               17292.24
+131072              20928.89
+262144              23515.27
+524288              25146.94
+1048576             21189.42
+2097152             12233.47
+4194304             12169.52
+
+=================================================================
+
+mpirun -n 2 /scratch/user/u.sm121949/.local/git/pvc-aces/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw H H
+# OSU MPI Bi-Directional Bandwidth Test v5.3
+# Size      Bandwidth (MB/s)
+1                       9.89
+2                      19.82
+4                      39.78
+8                      79.65
+16                    137.92
+32                    274.59
+64                    308.25
+128                   424.64
+256                   698.86
+512                  1382.49
+1024                 2367.82
+2048                 3328.16
+4096                 4560.64
+8192                 8421.42
+16384               14654.03
+32768               19902.58
+65536               26768.97
+131072              36242.47
+262144              42087.00
+524288              45857.03
+1048576             35332.32
+2097152             23537.50
+4194304             24168.11

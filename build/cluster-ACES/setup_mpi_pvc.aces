@@ -39,15 +39,14 @@
 # Setup paths
 # ------------------------------------------------------------------------------
 
-    setup_base
-    export_all_versions
+    LATEST_BUILD_PVC
     add_installation_to_path gcc      $BUILD_GCC_VER     ${PKG_LOCAL}
 
 # ------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="${BUILD_PATH}/build_scripts/mpi.build"
+CMD="${BUILD_PATH}/build_scripts/build_mpi.script"
 echo -e "\n$CMD\n"
 eval $CMD
 
@@ -55,27 +54,6 @@ eval $CMD
 # CHECK IF BUILD WAS SUCCESSFUL
 # ------------------------------------------------------------------------------
 
-add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich   ${BUILD_MPICH_VER}   ${PKG_LOCAL}
+#add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich   ${BUILD_MPICH_VER}   ${PKG_LOCAL}
 add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx     ${BUILD_UCX_VER}     ${PKG_LOCAL}
 add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
-
-# ------------------------------------------------------------------------------
-# Test build with osu_microbenchmarks and other CUDA benchmarks
-# ------------------------------------------------------------------------------
-# 
-# CMD="$SCRATCH/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build build2 ac037 4.1.6"
-# echo -e "\n$CMD\n"
-# eval $CMD
-# 
-# which mpirun
-# 
-# # RUN OSU MICROBENCHMARKS
-# echo -e "\nRunning OSU microbenchmarks\n"
-# echo -e "\n=================================================================\n"
-# echo -e "\n OSU Bandwidth\n"
-# mpirun -np 2 $GIT_LOCAL/build2-ac037/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw
-# echo -e "\n-----------------------------------------------------------------\n"
-# echo -e "\n OSU Bi-Directional Bandwidth\n"
-# mpirun -np 2 $GIT_LOCAL/build2-ac037/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw
-# echo -e "\n-----------------------------------------------------------------\n"
-# 

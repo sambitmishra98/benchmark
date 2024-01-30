@@ -1,0 +1,277 @@
+Running on master node: g057.cluster
+Time: Tue Jan 30 10:47:25 CST 2024
+Current directory: /scratch/user/sambit98/EFFORT_BENCHMARK/benchmark/build
+JobID: 9621974
+=================================================================
+Tasks=2,         nodes=2,          mpi_tasks_per_node=1          (OMP_NUM_THREADS=1)
+Virtual environments:
+	 
+	 
+	  
+	 
+	 
+[32mAdding gcc installation at /scratch/user/sambit98/.local-grace1/pkg/gcc/12.3.0 to PATH[0m
+[32mAdding a100-grace/ucx installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/ucx/1.15.0 to PATH[0m
+[32mAdding a100-grace/openmpi installation at /scratch/user/sambit98/.local-grace1/pkg/a100-grace/openmpi/5.0.1 to PATH[0m
+
+Running OSU microbenchmarks
+
+
+=================================================================
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+1                       0.25
+2                       0.50
+4                       1.00
+8                       1.92
+16                      3.81
+32                      7.43
+64                     15.18
+128                    26.40
+256                    51.20
+512                    71.82
+1024                   93.46
+2048                  103.71
+4096                  110.35
+8192                  114.20
+16384                 115.76
+32768                 116.80
+65536                1674.45
+131072               1769.09
+262144               1830.55
+524288               1842.90
+1048576              1844.73
+2097152              1843.58
+4194304              1875.17
+
+=================================================================
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+1                       0.07
+2                       0.14
+4                       0.29
+8                       0.58
+16                      1.13
+32                      2.26
+64                      4.68
+128                     8.97
+256                    17.89
+512                    34.64
+1024                   63.77
+2048                  100.69
+4096                  109.33
+8192                  113.36
+16384                 115.36
+32768                 116.59
+65536                 983.55
+131072               1199.29
+262144               1107.22
+524288               1369.75
+1048576              1567.24
+2097152              1624.92
+4194304              1630.40
+
+=================================================================
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D D
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+1                       0.07
+2                       0.14
+4                       0.27
+8                       0.54
+16                      1.07
+32                      2.12
+64                      4.22
+128                     8.42
+256                    16.40
+512                    32.05
+1024                   61.74
+2048                   98.14
+4096                  108.61
+8192                  112.89
+16384                 115.16
+32768                 116.43
+65536                 692.49
+131072                880.81
+262144                822.72
+524288               1021.19
+1048576              1055.01
+2097152              1074.21
+4194304              1075.87
+
+=================================================================
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H D
+
+# OSU MPI-CUDA Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+1                       0.09
+2                       0.19
+4                       0.37
+8                       0.76
+16                      1.55
+32                      3.15
+64                      6.39
+128                    12.81
+256                    24.88
+512                    48.52
+1024                   86.09
+2048                  101.26
+4096                  109.23
+8192                  113.91
+16384                 115.48
+32768                 116.65
+65536                 941.70
+131072               1027.57
+262144               1074.52
+524288               1092.60
+1048576              1090.96
+2097152              1103.67
+4194304              1105.66
+
+=================================================================
+
+
+ OSU Bi-Directional Bandwidth
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw H H
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+1                       0.46
+2                       0.94
+4                       1.79
+8                       3.59
+16                      7.41
+32                     14.64
+64                     33.67
+128                    57.96
+256                   107.29
+512                   128.01
+1024                  183.27
+2048                  192.37
+4096                  204.52
+8192                  226.68
+16384                 229.63
+32768                 231.14
+65536                1632.58
+131072               1671.58
+262144               1778.47
+524288               1858.98
+1048576              1850.42
+2097152              1847.35
+4194304              1852.42
+
+=================================================================
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw D H
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on HOST (H)
+# Size      Bandwidth (MB/s)
+1                       0.11
+2                       0.22
+4                       0.43
+8                       0.86
+16                      1.71
+32                      3.42
+64                      6.89
+128                    13.69
+256                    27.07
+512                    53.06
+1024                  100.70
+2048                  192.07
+4096                  215.77
+8192                  209.00
+16384                 229.10
+32768                 230.79
+65536                 965.46
+131072               1024.52
+262144               1039.23
+524288               1317.19
+1048576              1356.42
+2097152              1371.64
+4194304              1378.57
+
+=================================================================
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw D D
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on DEVICE (D) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+1                       0.10
+2                       0.20
+4                       0.40
+8                       0.81
+16                      1.59
+32                      3.12
+64                      6.24
+128                    12.44
+256                    24.70
+512                    48.67
+1024                   93.64
+2048                  178.58
+4096                  210.20
+8192                  224.09
+16384                 228.88
+32768                 230.69
+65536                1073.14
+131072               1024.22
+262144               1095.04
+524288               1204.11
+1048576              1303.92
+2097152              1322.55
+4194304              1333.31
+
+=================================================================
+
+
+mpirun -n 2 /scratch/user/sambit98/.local-grace1/git/a100-grace/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw H D
+
+# OSU MPI-CUDA Bi-Directional Bandwidth Test v5.3
+# Send Buffer on HOST (H) and Receive Buffer on DEVICE (D)
+# Size      Bandwidth (MB/s)
+1                       0.11
+2                       0.22
+4                       0.44
+8                       0.89
+16                      1.74
+32                      3.47
+64                      6.97
+128                    13.84
+256                    27.34
+512                    53.96
+1024                  103.26
+2048                  189.52
+4096                  210.39
+8192                  211.69
+16384                 229.58
+32768                 231.07
+65536                 992.90
+131072               1059.75
+262144               1085.47
+524288               1364.30
+1048576              1398.96
+2097152              1391.00
+4194304              1392.03

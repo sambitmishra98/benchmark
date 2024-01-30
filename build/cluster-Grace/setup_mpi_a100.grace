@@ -58,15 +58,3 @@ eval $CMD
 #add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich   ${BUILD_MPICH_VER}   ${PKG_LOCAL}
 add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx     ${BUILD_UCX_VER}     ${PKG_LOCAL}
 add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
-
-# ------------------------------------------------------------------------------
-# RUN OSU MICROBENCHMARKS
-# ------------------------------------------------------------------------------
-echo -e "\nRunning OSU microbenchmarks\n"
-echo -e "\n=================================================================\n"
-echo -e "\n OSU Bandwidth\n"
-srun -N2 --tasks-per-node=1 -n 2 $GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw
-# echo -e "\n-----------------------------------------------------------------\n"
-# echo -e "\n OSU Bi-Directional Bandwidth\n"
-# mpirun -np 2 $GIT_LOCAL/${BUILD_NAME}-${BUILD_TAG}/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw
-# echo -e "\n-----------------------------------------------------------------\n"
