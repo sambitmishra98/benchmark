@@ -586,7 +586,8 @@ $EndPhysicalNames
         ele += ''.join(elements)
         return f'$Elements\n{nele}\n{ele}$EndElements\n'
 
-    def make_mesh(self, etype, nx):
+    def make_mesh(self, etype, nvertices):
+        nx = nvertices + 1 
         R = np.linspace(0, self.l, nx)
         header = self.gmsh_header()
 
