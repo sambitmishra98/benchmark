@@ -1,27 +1,25 @@
 #!/bin/bash
-#SBATCH --job-name="build3-script"
+#SBATCH --job-name="python-build"
 #SBATCH --nodes=1
 #SBATCH --exclusive
-#SBATCH --reservation=benchmarking
+#SBATCH --reservation=nsight
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=build3-2.out
+#SBATCH --output=Python-build-H100.out
 #SBATCH --no-requeue
 #SBATCH --partition=gpu
-#SBATCH --ntasks=2
+#SBATCH --ntasks=16
 #SBATCH --gres=gpu:h100:2
 #SBATCH --cpus-per-gpu=8
-#SBATCH --nodelist=ac038
+#SBATCH --nodelist=ac055
 
 # ------------------------------------------------------------------------------
 # Check environment
 # ------------------------------------------------------------------------------
 
-/sw/local/bin/query_gpu.sh
-
-nvidia-smi -L ; clinfo -l
+nvidia-smi -L
 source ~/.bashrc
 echo -e "\n================================================================="
 
@@ -46,21 +44,19 @@ echo -e "Tasks=${SLURM_NTASKS},\
 # Setup paths
 # ------------------------------------------------------------------------------
 
-setup_base
-export_all_versions
-add_to_path_cuda_12_2_0
+LATEST_BUILD_H100
 add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
 
 # ------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="/scratch/user/u.sm121949/EFFORT_BENCHMARK/benchmark/build/python.build build3 ac038 3.4.4 1.1.1w 3.12.1"
+CMD="${BUILD_PATH}/build_scripts/build_python.script"
 echo -e "\n$CMD\n"
 eval $CMD
 
-add_installation_to_path build3-ac038/libffi  3.4.4  $PKG_LOCAL
-add_installation_to_path build3-ac038/openssl 1.1.1w $PKG_LOCAL
-add_installation_to_path build3-ac038/python  3.12.1 $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/libffi  ${BUILD_LIBFFI_VER} $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/openssl ${BUILD_OPENSSL_VER} $PKG_LOCAL
+add_installation_to_path ${BUILD_NAME_PYTHON}-${BUILD_TAG_PYTHON}/python  ${BUILD_PYTHON_VER} $PKG_LOCAL
 
 echo -e "\nSimulation ends\n"

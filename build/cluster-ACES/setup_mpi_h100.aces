@@ -1,19 +1,19 @@
 #!/bin/bash
-#SBATCH --job-name="build2-script"
+#SBATCH --job-name="mpi-build"
 #SBATCH --nodes=1
-##SBATCH --exclusive
-#SBATCH --reservation=benchmarking
+#SBATCH --exclusive
+#SBATCH --reservation=nsight
 #SBATCH --gpu-bind=closest
 #SBATCH --use-min-nodes
 #SBATCH --time=0-06:00:00
 #SBATCH --mem=80G
-#SBATCH --output=openmpi-build-test_1node_2gpu.out
+#SBATCH --output=MPI-build-H100.out
 #SBATCH --no-requeue
 #SBATCH --partition=gpu
-#SBATCH --ntasks=2
+#SBATCH --ntasks=16
 #SBATCH --gres=gpu:h100:2
 #SBATCH --cpus-per-gpu=8
-#SBATCH --nodelist=ac036
+#SBATCH --nodelist=ac055
 
 # ------------------------------------------------------------------------------
 # Check environment
@@ -46,19 +46,15 @@ echo -e "Tasks=${SLURM_NTASKS},\
 # Setup paths
 # ------------------------------------------------------------------------------
 
-setup_base
-export_all_versions
-add_to_path_cuda_12_3_0
+LATEST_BUILD_H100
+ml CUDA/$BUILD_EASY_CUDA_VER
 add_installation_to_path gcc      $BUILD_GCC_VER     $PKG_LOCAL
-
-export BUILD_UCX_VER=1.15.0
-export BUILD_OPENMPI_VER=5.0.1
 
 # ------------------------------------------------------------------------------
 # Build
 # ------------------------------------------------------------------------------
 
-CMD="$SCRATCH/EFFORT_BENCHMARK/benchmark/build/openmpi.build build2 ac037 1.15.0 4.1.6"
+CMD="${BUILD_PATH}/build_scripts/build_mpi.script"
 echo -e "\n$CMD\n"
 eval $CMD
 
@@ -66,21 +62,9 @@ add_installation_to_path final-compute-amd/ucx     $BUILD_UCX_VER     $PKG_LOCAL
 add_installation_to_path final-compute-amd/openmpi $BUILD_OPENMPI_VER $PKG_LOCAL
 
 # ------------------------------------------------------------------------------
-# Test build with osu_microbenchmarks and other CUDA benchmarks
+# CHECK IF BUILD WAS SUCCESSFUL
 # ------------------------------------------------------------------------------
 
-CMD="$SCRATCH/EFFORT_BENCHMARK/benchmark/build/osu_microbenchmarks.build build2 ac037 4.1.6"
-echo -e "\n$CMD\n"
-eval $CMD
-
-which mpirun
-
-# RUN OSU MICROBENCHMARKS
-echo -e "\nRunning OSU microbenchmarks\n"
-echo -e "\n=================================================================\n"
-echo -e "\n OSU Bandwidth\n"
-mpirun -np 2 $GIT_LOCAL/build2-ac037/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw
-echo -e "\n-----------------------------------------------------------------\n"
-echo -e "\n OSU Bi-Directional Bandwidth\n"
-mpirun -np 2 $GIT_LOCAL/build2-ac037/osu-micro-benchmarks/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bibw
-echo -e "\n-----------------------------------------------------------------\n"
+#add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich   ${BUILD_MPICH_VER}   ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx     ${BUILD_UCX_VER}     ${PKG_LOCAL}
+add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
