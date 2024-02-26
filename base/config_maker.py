@@ -2,6 +2,12 @@ import os
 import numpy as np
 import configparser
 
+# Get the following as optional arguments
+BENCHMARK_WITH_SOLUTION_FILE = True
+BENCHMARK_WITH_PROFILE=False
+BENCHMARK_WITH_CLBLAST = False
+BENCHMARK_FIRST_ACCELERATOR = True
+
 class MyConfigParser(configparser.ConfigParser):
     def optionxform(self, optionstr):
         return optionstr
@@ -10,7 +16,7 @@ class ConfigMaker:
     def __init__(self, prefix=''):
         self.prefix = prefix
 
-    def create_config(self, number_of_timesteps, output_file, cuda, order, precision, partition_file):
+    def create_config(self, number_of_timesteps, output_file, aware, order, precision, partition_file):
         # Calculate values based on input
 
         # number_of_timesteps is always a power of 10. So let us get the exponent
@@ -21,8 +27,7 @@ class ConfigMaker:
 
         dt = 1e-4
         tend = 0.0001 + 10**(expo_dt)
-        benchmark_with_solution_file = True
-        
+
         # Create and configure the configparser object
         config = MyConfigParser()
         config.optionxform = str  # Preserve case sensitivity
@@ -31,15 +36,21 @@ class ConfigMaker:
             "precision": precision,
             "rank-allocator": "linear",
             "collect-wait-times": "true",
+            "memory-model": "large",
         }
         config["backend-cuda"] = {
-            "device-id": "local-rank",
-            "mpi-type": "cuda-aware" if cuda else "standard",
+            "device-id": "0" if BENCHMARK_FIRST_ACCELERATOR else "local-rank",
+            "mpi-type": "cuda-aware" if aware else "standard",
+        }
+        config["backend-hip"] = {
+            "device-id": "0" if BENCHMARK_FIRST_ACCELERATOR else "local-rank",
+            "mpi-type": "hip-aware" if aware else "standard",
         }
         config["backend-opencl"] = {
             "platform-id": "0",
             "device-type": "GPU",
-            "device-id"  : "local-rank",
+            "device-id"  : "0" if BENCHMARK_FIRST_ACCELERATOR else "local-rank",                     
+            "gimmik-max-nnz": "4" if BENCHMARK_WITH_CLBLAST else "100000000",
         }
         config["constants"] = {
             "gamma": "1.4",
@@ -56,7 +67,7 @@ class ConfigMaker:
             "shock-capturing": "none",
         }
 
-        if benchmark_with_solution_file:
+        if BENCHMARK_WITH_SOLUTION_FILE:
             config["solver-time-integrator"] = {
                 "scheme": "rk4",
                 "controller": "none",
@@ -123,13 +134,20 @@ class ConfigMaker:
             "p": "1.0+1.0*U*U/16*(cos(2*x)+cos(2*y))*(cos(2*z)+2)",
             "rho": "(1.0+1.0*U*U/16*(cos(2*x)+cos(2*y))*(cos(2*z)+2))/1.0",
         }
-        config["soln-plugin-benchmark"] = {
-            "flushsteps": "10000",
-            "file": "perf_counter_measurements.csv",
-            "header": "true",
-            "mesh": partition_file,
-            "continue-sim": "True",
-        }
+        if not BENCHMARK_WITH_PROFILE:        
+#            config["soln-plugin-benchmark"] = {
+#                "flushsteps": "10000",
+#                "file": "perf_counter_measurements.csv",
+#                "header": "true",
+#                "mesh": partition_file,
+#                "continue-sim": "True",
+#            }
+            config["soln-plugin-writer"] = {
+                "dt-out": str(10**expo_dt),
+                "basedir": ".",
+                "basename": f"soln-{{t:.{-expo_dt}f}}",
+            }
+
 #        config["soln-plugin-integrate"] = {
 #            "nsteps": "1000",
 #            "file": "integral.csv",
@@ -158,11 +176,6 @@ class ConfigMaker:
 #            "file": "residual.csv",
 #            "header": "true",
 #        }
-        config["soln-plugin-writer"] = {
-            "dt-out": str(10**expo_dt),
-            "basedir": ".",
-            "basename": f"soln-{{t:.{-expo_dt}f}}",
-        }
 
         # Write the config file
         with open(output_file, 'w') as configfile:
@@ -174,15 +187,15 @@ class ConfigMaker:
 
         os.system("mkdir -p configs")
 
-        for steps, cuda, order, precision, npart, etype, nelem in zip(nsteps, ncaware, norder, nprecision, nparts, netype, nelems):
+        for steps, aware, order, precision, npart, etype, nelem in zip(nsteps, ncaware, norder, nprecision, nparts, netype, nelems):
 
             # Echo the current configuration
             print(f"steps: {steps}")
-            config=f"configs/{self.prefix}steps{steps}_caware{cuda}_order{order}_precision{precision}_tasks{npart}_{etype}{nelem}.ini"
+            config=f"configs/{self.prefix}steps{steps}_caware{aware}_order{order}_precision{precision}_tasks{npart}_{etype}{nelem}.ini"
             partition_file = f'../../partitions/tasks{npart}_{etype}{nelem}.pyfrm'
 
             if not os.path.isfile(config):
-                self.create_config(steps, config, cuda, order, precision, partition_file)
+                self.create_config(steps, config, aware, order, precision, partition_file)
                 print(f"Config created: {config}")
             else:
                 print(f"Config  exists: {config}")
