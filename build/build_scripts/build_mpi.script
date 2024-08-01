@@ -1,5 +1,6 @@
 if [ -f /sw/local/etc/clustername ]; then
     BUILD_CLUSTER=$(cat /sw/local/etc/clustername)
+    ml WebProxy
 else
     BUILD_CLUSTER="spitfire"
 fi
@@ -21,8 +22,6 @@ echo -e "BUILD_UCX_VER: ${BUILD_UCX_VER}"
 echo -e "BUILD_OPENMPI_VER: $BUILD_OPENMPI_VER"
 echo -e "BUILD_NP: $BUILD_NP"
 echo -e "=================================================================\n"
-
-ml WebProxy
 
 add_installation_to_path() {
     local name=$1
@@ -287,30 +286,30 @@ setup_osu_micro_benchmarks(){
 #    echo "Setting up MPICH in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/mpich/$BUILD_MPICH_VER" ; setup_mpich_pkg
 #fi
 
-if [ ! -d "$PKG_DOWNLOAD/ucx/${BUILD_UCX_VER}" ]; then
-    echo "Downloading UCX" ; get_ucx_pkg
-fi
+## if [ ! -d "$PKG_DOWNLOAD/ucx/${BUILD_UCX_VER}" ]; then
+##     echo "Downloading UCX" ; get_ucx_pkg
+## fi
 
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER}" ]; then
-    echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER}" ; setup_ucx_pkg
-fi
-
-add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx      ${BUILD_UCX_VER}     $PKG_LOCAL
-
-if [ ! -d "$PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER" ]; then
-    echo "Downloading OpenMPI" ; get_openmpi_pkg
-fi
-
-if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ]; then
-    echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
-fi
-
-add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
-
-if [ ! -d "$GIT_DOWNLOAD/osu-micro-benchmarks/osu-micro-benchmarks" ]; then
-    echo "Downloading OSU Microbenchmarks" ; get_osu_microbenchmarks
-fi
-
-if [ ! -d "$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks" ]; then
-    echo "Setting up OpenMPI in $GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks" ; setup_osu_micro_benchmarks
-fi
+## if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER}" ]; then
+##     echo "Setting up UCX in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx/${BUILD_UCX_VER}" ; setup_ucx_pkg
+## fi
+## 
+## add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/ucx      ${BUILD_UCX_VER}     $PKG_LOCAL
+## 
+## if [ ! -d "$PKG_DOWNLOAD/openmpi/$BUILD_OPENMPI_VER" ]; then
+##     echo "Downloading OpenMPI" ; get_openmpi_pkg
+## fi
+## 
+## if [ ! -d "$PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ]; then
+##     echo "Setting up OpenMPI in $PKG_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi/${BUILD_OPENMPI_VER}" ; setup_openmpi_pkg
+## fi
+## 
+## add_installation_to_path ${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/openmpi ${BUILD_OPENMPI_VER} ${PKG_LOCAL}
+## 
+## if [ ! -d "$GIT_DOWNLOAD/osu-micro-benchmarks/osu-micro-benchmarks" ]; then
+##     echo "Downloading OSU Microbenchmarks" ; get_osu_microbenchmarks
+## fi
+## 
+## if [ ! -d "$GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks" ]; then
+##     echo "Setting up OpenMPI in $GIT_LOCAL/${BUILD_NAME_MPI}-${BUILD_TAG_MPI}/osu-micro-benchmarks" ; setup_osu_micro_benchmarks
+## fi

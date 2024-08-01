@@ -1,0 +1,135 @@
+#!/bin/bash
+#SBATCH --job-name="build-mpi-v100"
+#SBATCH --nodes=2
+#SBATCH --exclusive
+#SBATCH --use-min-nodes
+#SBATCH --time=0-06:00:00
+#SBATCH --mem=80G
+#SBATCH --output=build-mpi-v100_%j.out
+#SBATCH --no-requeue
+#SBATCH --partition=all
+#SBATCH --tasks-per-node=12
+
+export SCRATCH=/mnt/share/sambit98
+
+# ------------------------------------------------------------------------------
+# Ensure basic environment variables
+# ------------------------------------------------------------------------------
+
+. /etc/profile.d/modules.sh
+module purge
+source ~/.bashrc
+
+export DOWNLOADS="${SCRATCH}/sambit-v100/.downloads"
+export  INSTALLS="${SCRATCH}/sambit-v100/.local-spitfire"
+
+mkdir -p ${SCRATCH}/sambit-v100
+mkdir -p ${DOWNLOADS}
+mkdir -p ${INSTALLS}
+
+# ------------------------------------------------------------------------------
+# Print SLURM settings
+# ------------------------------------------------------------------------------
+
+    numnodes=$SLURM_JOB_NUM_NODES
+    mpi_tasks_per_node=$(echo "$SLURM_TASKS_PER_NODE" | sed -e  's/^\([0-9][0-9]*\).*$/\1/')
+    np=$[${SLURM_JOB_NUM_NODES}*${mpi_tasks_per_node}]
+
+    echo "Running on master node: `hostname`"
+    echo "Time: `date`"
+    echo "Current directory: `pwd`"
+    echo -e "JobID: $SLURM_JOB_ID\n================================================================="
+    echo -e "Tasks=${SLURM_NTASKS},\
+            nodes=${SLURM_JOB_NUM_NODES}, \
+            mpi_tasks_per_node=${mpi_tasks_per_node} \
+            (OMP_NUM_THREADS=$OMP_NUM_THREADS)"
+
+# ------------------------------------------------------------------------------
+# Setup paths
+# ------------------------------------------------------------------------------
+
+add_installation_to_path() {
+    local name=$1
+    local version=$2
+    local install_root=$3
+    local install_dir="${install_root}/${name}/${version}"
+
+    # if the base directory does not exist, then echo a warning and return
+    if [ ! -d "${install_dir}" ]; then
+        echo -e "\e[31mERROR IN PATH ADDITION: ${install_dir} DOES NOT EXIST !!!!\e[0m"; return
+    else
+        echo -e "\e[32mAdding ${name} installation at ${install_dir} to PATH\e[0m"
+
+        [ -d "${install_dir}/bin"           ] && export            PATH="${install_dir}/bin:$PATH"
+        [ -d "${install_dir}/include"       ] && export           CPATH="${install_dir}/include:$CPATH"
+        [ -d "${install_dir}/include"       ] && export          CPPATH="${install_dir}/include:$CPPATH"
+        [ -d "${install_dir}/lib"           ] && export          LDPATH="${install_dir}/lib:$LDPATH"
+        [ -d "${install_dir}/lib64"         ] && export          LDPATH="${install_dir}/lib64:$LDPATH"
+        [ -d "${install_dir}/lib"           ] && export    LIBRARY_PATH="${install_dir}/lib:$LIBRARY_PATH"
+        [ -d "${install_dir}/lib64"         ] && export    LIBRARY_PATH="${install_dir}/lib64:$LIBRARY_PATH"
+        [ -d "${install_dir}/lib"           ] && export LD_LIBRARY_PATH="${install_dir}/lib:$LD_LIBRARY_PATH"
+        [ -d "${install_dir}/lib64"         ] && export LD_LIBRARY_PATH="${install_dir}/lib64:$LD_LIBRARY_PATH"
+        [ -d "${install_dir}/lib/pkgconfig" ] && export PKG_CONFIG_PATH="${install_dir}/lib/pkgconfig:$PKG_CONFIG_PATH"
+    fi }
+
+
+# If AMD node, then load the rocm module
+# if [ "$SLURM_JOB_PARTITION" == "amd" ]; then
+#     add_installation_to_path "rocm-6.1.1" "" "/opt/"
+# else
+#     echo "Not an AMD node"
+#     exit 1
+# fi
+
+# ------------------------------------------------------------------------------
+# Build
+# ------------------------------------------------------------------------------
+
+# If ucx already exists, then dont do anything
+if [ ! -d "${DOWNLOADS}/ucx" ]; then
+    git clone https://github.com/openucx/ucx.git ${DOWNLOADS}/ucx
+    cd ${DOWNLOADS}/ucx
+    ./autogen.sh
+    echo "Cloned UCX from git"
+else
+    echo "UCX already exists"
+    cd ${DOWNLOADS}/ucx
+fi
+
+# # The install location shall be of the form ${INSTALLS}/MPI/${YYYY-MM-DD}-${JOB_ID}
+export INSTALL_MPI=${INSTALLS}/MPI/$(date +%Y-%m-%d)-${SLURM_JOB_ID}
+CMD="./configure --prefix=${INSTALL_MPI}/ucx --enable-shared"
+echo $CMD ; eval $CMD
+make clean ; make -j 24 ; make install
+add_installation_to_path ucx "" ${INSTALL_MPI}
+
+if [ ! -d "${DOWNLOADS}/ompi" ]; then
+    git clone --recursive https://github.com/open-mpi/ompi.git ${DOWNLOADS}/ompi
+    cd ${DOWNLOADS}/ompi
+    ./autogen.pl
+    echo "Cloned OpenMPI from git"
+
+    # Create a virtual environment for building the docs
+    python3 -m venv ompi-docs-venv
+    source ompi-docs-venv/bin/activate
+    pip3 install -r docs/requirements.txt    
+
+else
+    echo "OpenMPI already exists"
+    cd ${DOWNLOADS}/ompi
+    source ompi-docs-venv/bin/activate
+fi
+
+CMD="./configure --prefix=${INSTALL_MPI}/ompi --enable-shared --with-ucx=${INSTALLS}/MPI/$(date +%Y-%m-%d)-${SLURM_JOB_ID}/ucx"
+echo $CMD ; eval $CMD
+make clean ; make -j 24 ; make install
+
+add_installation_to_path ompi "" ${INSTALL_MPI}
+
+# Verify installation
+
+ucx_info -d
+ompi_info
+mpiexec -n 1 hostname
+
+
